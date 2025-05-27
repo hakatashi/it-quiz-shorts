@@ -351,13 +351,10 @@ export const synthesisToFile = async (text: string, filename: string) => {
 		throw new Error('timepoints is undefined or null');
 	}
 
-	const outputDirPath = path.join(__dirname, '../../public/speeches')
+	const outputDirPath = path.join(__dirname, '../../public/speeches');
 	await fs.ensureDir(outputDirPath);
 
-	const outputFilePath = path.join(
-		outputDirPath,
-		filename,
-	);
+	const outputFilePath = path.join(outputDirPath, filename);
 
 	await fs.writeFile(outputFilePath, audioData);
 
@@ -369,10 +366,13 @@ export const synthesisToFile = async (text: string, filename: string) => {
 };
 
 if (require.main === module) {
-	const text = '2つの<ruby><rb>目玉</rb><rp>（</rp><rt>めだま</rt><rp>）</rp></ruby>がマウスポインタの動きを追いかけるというシンプルかつユーモラスな動作が特徴の、X Window Systemのデモアプリケーションは何でしょう？';
+	const text =
+		'2つの<ruby><rb>目玉</rb><rp>（</rp><rt>めだま</rt><rp>）</rp></ruby>がマウスポインタの動きを追いかけるというシンプルかつユーモラスな動作が特徴の、X Window Systemのデモアプリケーションは何でしょう？';
 	const filename = 'output.mp3';
 
 	synthesisToFile(text, filename)
-		.then((d) => console.log(`Synthesis completed and saved to ${filename}: `, d))
+		.then((d) =>
+			console.log(`Synthesis completed and saved to ${filename}: `, d),
+		)
 		.catch((error) => console.error('Error during synthesis:', error));
 }
