@@ -1,1 +1,26 @@
 @import "tailwindcss";
+
+.quiz {
+	font-size: 2rem;
+	font-weight: bold;
+	line-height: 1.5em;
+}
+
+.quiz_clause {
+	display: inline-block;
+	position: relative;
+}
+
+.quiz_clause::after {
+	content: '';
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	background-color: white;
+
+	transform: scaleX(var(--hidden-ratio));
+	transform-origin: 100% 50%;
+}
