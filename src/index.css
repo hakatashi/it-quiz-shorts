@@ -1,9 +1,53 @@
 @import 'tailwindcss';
 
-.quiz {
+.quiz_title {
+	position: absolute;
+	top: 600px !important;
+	left: 50% !important;
+	right: auto !important;
+	bottom: auto !important;
+	width: 100% !important;
+	height: auto !important;
+	text-align: center;
+	font-size: 180px;
+	font-family: 'Noto Sans Japanese';
+	transform-origin: center;
+}
+
+.quiz_difficulty {
+	top: 310px !important;
+	left: 250px !important;
+	width: auto !important;
+	height: auto !important;
+	text-align: left;
+	font-family: 'Noto Serif Japanese';
+	font-size: 38px;
+	color: #222;
+}
+
+.quiz_id {
+	top: 310px !important;
+	right: 50px !important;
+	width: auto !important;
+	height: auto !important;
+	text-align: right;
+	font-family: 'Noto Sans Japanese';
+	font-size: 38px;
+	color: #222;
+}
+
+.quiz_text {
+	display: block !important;
+	top: 400px !important;
+	left: 50px !important;
+	right: 50px !important;
+	width: auto !important;
 	font-weight: bold;
 	line-height: 1.5em;
 	line-break: strict;
+	font-family: 'Noto Sans Japanese';
+	font-size: 60px;
+	color: #222;
 }
 
 .quiz_clause {
@@ -41,4 +85,47 @@ svg.countdown_circle circle {
 	color: #292819;
 	font-family: 'M PLUS 1';
 	font-size: 50px;
+}
+
+.quiz_volume {
+	top: 180px !important;
+	left: 50% !important;
+	width: 320px !important;
+	height: 42px !important;
+	transform: translateX(-50%);
+	background-color: black;
+	text-align: center;
+	font-size: 28px;
+	color: #00ff00;
+	font-family: 'Monaspace Neon';
+}
+
+.countdown {
+	top: 1200px !important;
+	left: 50% !important;
+	width: 600px !important;
+	height: 600px !important;
+	transform: translateX(-50%);
+}
+
+.countdown_number {
+	top: 50% !important;
+	left: 50% !important;
+	width: 100% !important;
+	height: 100% !important;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 280px;
+	color: #333;
+	font-family: 'Noto Sans Japanese';
+}
+
+.answer_text_wrapper {
+	top: 1250px !important;
+	left: 0 !important;
+	right: 0 !important;
+	bottom: 300px !important;
+	width: 100% !important;
+	height: auto !important;
 }

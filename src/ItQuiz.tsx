@@ -49,6 +49,23 @@ const extractMarkIndex = (markName: string | null | undefined) =>
 		? Number.NaN
 		: Number.parseInt(markName.match(/c(\d+)/)?.[1] ?? '');
 
+const getDifficultyText = (difficulty: number) => {
+	switch (difficulty) {
+		case 1:
+			return '難易度★☆☆☆☆ (かんたん)';
+		case 2:
+			return '難易度★★☆☆☆ (少し難しい)';
+		case 3:
+			return '難易度★★★☆☆ (難しい)';
+		case 4:
+			return '難易度★★★★☆ (かなり難しい)';
+		case 5:
+			return '難易度★★★★★ (ゲキムズ)';
+		default:
+			throw new Error(`Invalid difficulty: ${difficulty}`);
+	}
+}
+
 interface ClauseInformation {
 	html: string;
 	duration: number;
@@ -82,18 +99,9 @@ const CountDown: React.FC<{
 			</svg>
 			<AbsoluteFill
 				style={{
-					top: '50%',
-					left: '50%',
-					width: '100%',
-					height: '100%',
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					fontSize: 280,
-					color: '#333',
-					fontFamily: 'Noto Sans Japanese',
 					transform: `translate(-50%, -50%) translateY(-20px) scale(${secondScale})`,
 				}}
+				className="countdown_number"
 			>
 				{second}
 			</AbsoluteFill>
@@ -145,7 +153,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	alternativeAnswers,
 }) => {
 	const frame = useCurrentFrame();
-	const {durationInFrames, fps} = useVideoConfig();
+	const {fps} = useVideoConfig();
 	const timestamp = frame / fps - 1;
 
 	const sortedTimepoints = timepoints.sort(
@@ -214,6 +222,9 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 			/>
 			<AbsoluteFill>
 				<Img src={staticFile('images/quiz.png')} />
+				<AbsoluteFill className="quiz_volume">
+					#{volumes} ({date})
+				</AbsoluteFill>
 			</AbsoluteFill>
 			<Sequence durationInFrames={quizPreparationDuration} name="Quiz Preparation">
 				<Audio
@@ -224,68 +235,23 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 					src={staticFile('soundeffects/和太鼓でドドン.mp3')}
 					volume={1}
 				/>
-				<AbsoluteFill style={{
-					top: 600,
-					left: '50%',
-					right: 'auto',
-					bottom: 'auto',
-					width: '100%',
-					height: 'auto',
-					textAlign: 'center',
-					fontSize: 180,
-					fontFamily: 'Noto Sans Japanese',
-					transformOrigin: 'center',
-					transform: `translateX(-50%) scale(${quizTitleScale})`,
-				}}>
+				<AbsoluteFill
+					style={{
+						transform: `translateX(-50%) scale(${quizTitleScale})`,
+					}}
+					className="quiz_title"
+				>
 					第1問
 				</AbsoluteFill>
 			</Sequence>
 			<Sequence from={quizStartFrame} name="Quiz Text">
-				<AbsoluteFill
-					style={{
-						top: 310,
-						left: 250,
-						textAlign: 'left',
-						fontFamily: 'Noto Serif Japanese',
-						width: 'auto',
-						height: 'auto',
-						fontSize: 38,
-						color: '#222',
-						display: 'block',
-					}}
-					className="quiz_difficulty"
-				>
-					難易度★★☆☆☆ (少し難しい)
+				<AbsoluteFill className="quiz_difficulty">
+					{getDifficultyText(difficulty)}
 				</AbsoluteFill>
-				<AbsoluteFill
-					style={{
-						top: 310,
-						right: 50,
-						textAlign: 'right',
-						fontFamily: 'Noto Sans Japanese',
-						width: 'auto',
-						height: 'auto',
-						fontSize: 38,
-						color: '#222',
-						display: 'block',
-					}}
-					className="quiz_id"
-				>
+				<AbsoluteFill className="quiz_id">
 					No.{quizId}
 				</AbsoluteFill>
-				<AbsoluteFill
-					style={{
-						top: 400,
-						left: 50,
-						right: 50,
-						width: 'auto',
-						fontFamily: 'Noto Sans Japanese',
-						fontSize: 60,
-						color: '#222',
-						display: 'block',
-					}}
-					className="quiz"
-				>
+				<AbsoluteFill className="quiz_text">
 					{clauseInformation.map((clause, index) => (
 						<span
 							key={index}
@@ -309,15 +275,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 			<Sequence from={countdownStartFrame} durationInFrames={countdownDuration} name="Countdown">
 				{range(0, 3).map((i) => (
 					<Sequence key={i} from={i * fps * 0.8} durationInFrames={fps * 0.8}>
-						<AbsoluteFill
-							style={{
-								top: 1200,
-								left: '50%',
-								width: 600,
-								height: 600,
-								transform: 'translateX(-50%)',
-							}}
-						>
+						<AbsoluteFill className="countdown">
 							<CountDown second={3 - i} />
 						</AbsoluteFill>
 						<Audio
@@ -342,35 +300,10 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 					src={staticFile('soundeffects/決定ボタンを押す4.mp3')}
 					volume={2}
 				/>
-				<AbsoluteFill
-					style={{
-						top: 1250,
-						left: 0,
-						right: 0,
-						bottom: 300,
-						height: 'auto',
-						width: '100%',
-					}}
-				>
+				<AbsoluteFill className="answer_text_wrapper">
 					<AnswerText answer={answer} alternativeAnswers={alternativeAnswers} />
 				</AbsoluteFill>
 			</Sequence>
-			<AbsoluteFill
-				style={{
-					top: 180,
-					left: '50%',
-					width: 320,
-					height: 42,
-					transform: 'translateX(-50%)',
-					backgroundColor: 'black',
-					textAlign: 'center',
-					fontSize: 28,
-					color: '#00ff00',
-					fontFamily: 'Monaspace Neon',
-				}}
-			>
-				#{volumes} ({date})
-			</AbsoluteFill>
 		</AbsoluteFill>
 	);
 };

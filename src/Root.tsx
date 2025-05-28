@@ -18,7 +18,7 @@ export const RemotionRoot: React.FC = () => {
 				defaultProps={{
 					volumes: 1,
 					date: '2025-05-28',
-					difficulty: 2,
+					difficulty: 4,
 					quizId: 3541,
 					clauses: [
 						'2つの',
