@@ -10,7 +10,7 @@ export const RemotionRoot: React.FC = () => {
 			<Composition
 				id="ItQuizComposition"
 				component={ItQuizComposition}
-				durationInFrames={30 * 90}
+				durationInFrames={30 * 89.5}
 				fps={30}
 				width={1080}
 				height={1920}
@@ -18,6 +18,15 @@ export const RemotionRoot: React.FC = () => {
 				defaultProps={{
 					volumes: 1,
 					date: '2025-05-28',
+					voiceId: 'tsumugi',
+					questionSpeechId: 'ja-JP-Neural2-B',
+					introQuestionImageUrl:
+						'https://upload.wikimedia.org/wikipedia/commons/4/41/Roofline_model.png',
+					introQuestion: 'このグラフの名前は？',
+					introQuestionImageCopyrightText: [
+						'Based on the image “Roofline model.png” on Wikimedia Commons',
+						'Authored by Mewtow and licenced under CC0 1.0 Universal Public Domain Dedication',
+					].join('\n'),
 					quizzes: [
 						{
 							difficulty: 3,

@@ -13,6 +13,14 @@ loadFont({
 });
 
 loadFont({
+	family: 'Noto Sans Japanese',
+	url: staticFile('fonts/NotoSansJP-Black.ttf'),
+	weight: '900',
+}).then(() => {
+	console.log('Noto Sans Japanese font loaded');
+});
+
+loadFont({
 	family: 'Noto Serif Japanese',
 	url: staticFile('fonts/NotoSerifJP-SemiBold.ttf'),
 	weight: '600',
@@ -233,7 +241,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
 			<AbsoluteFill>
 				<Img src={staticFile('images/quiz.png')} />
-				<AbsoluteFill className="quiz_volume">
+				<AbsoluteFill className="quiz_volume quiz_volume_quiz">
 					#{volumes} ({date})
 				</AbsoluteFill>
 			</AbsoluteFill>
@@ -284,6 +292,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 			>
 				<Audio
 					src={staticFile(`speeches/${questionSpeechFileName}`)}
+					startFrom={0.1 * fps}
 					volume={() => questionVolume}
 					useWebAudioApi
 					crossOrigin="anonymous"

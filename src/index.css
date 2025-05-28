@@ -1,5 +1,92 @@
 @import 'tailwindcss';
 
+.title1 {
+	position: absolute;
+	top: 280px;
+	left: 50%;
+	max-width: initial;
+}
+
+.title2 {
+	position: absolute;
+	top: 550px;
+	left: 50%;
+	max-width: initial;
+}
+
+.title_information {
+	top: 1200px !important;
+	text-align: center;
+	font-size: 40px;
+	font-family: 'Noto Sans Japanese';
+	font-weight: 900;
+	color: #292819;
+}
+
+.intro1 {
+	position: absolute;
+	top: 160px;
+	left: 50%;
+	max-width: initial;
+	transform: translateX(-50%) scale(0.5);
+}
+
+.intro2 {
+	position: absolute;
+	top: 330px;
+	left: 50%;
+	max-width: initial;
+	transform: translateX(-50%) scale(0.5);
+}
+
+.intro_question_copyright_text {
+	top: auto !important;
+	left: 100px !important;
+	right: 100px !important;
+	bottom: 1180px !important;
+	width: auto !important;
+	height: auto !important;
+	text-align: right;
+	font-size: 20px;
+	line-height: 1em;
+	font-family: 'Noto Sans Japanese';
+}
+
+.intro_question {
+	position: absolute;
+	top: 750px !important;
+	left: 100px !important;
+	right: 100px !important;
+	width: auto !important;
+	height: 800px !important;
+	bottom: auto !important;
+
+	border: 5px solid #292819;
+	background-color: white;
+	text-align: center;
+
+	flex-direction: column !important;
+}
+
+.intro_question_image_area {
+	flex: 1;
+	padding: 20px;
+}
+
+.intro_question_image {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	object-position: center;
+}
+
+.intro_question_text_area {
+	flex: 0 0 140px;
+	font-size: 70px;
+	font-family: 'Noto Sans Japanese';
+	font-weight: 900;
+}
+
 .quiz_title {
 	position: absolute;
 	top: 600px !important;
@@ -89,16 +176,26 @@ svg.countdown_circle circle {
 }
 
 .quiz_volume {
-	top: 180px !important;
 	left: 50% !important;
-	width: 320px !important;
-	height: 42px !important;
 	transform: translateX(-50%);
 	background-color: black;
 	text-align: center;
-	font-size: 28px;
 	color: #00ff00;
 	font-family: 'Monaspace Neon';
+}
+
+.quiz_volume.quiz_volume_title {
+	top: 1100px !important;
+	width: 480px !important;
+	height: 62px !important;
+	font-size: 40px;
+}
+
+.quiz_volume.quiz_volume_quiz {
+	top: 180px !important;
+	width: 320px !important;
+	height: 42px !important;
+	font-size: 28px;
 }
 
 .countdown {
@@ -129,4 +226,20 @@ svg.countdown_circle circle {
 	bottom: 300px !important;
 	width: 100% !important;
 	height: auto !important;
+}
+
+.ending_text {
+	position: absolute;
+	top: 560px;
+	left: 50%;
+	max-width: initial;
+}
+
+.ending_information {
+	top: 1100px !important;
+	text-align: center;
+	font-size: 40px;
+	font-family: 'Noto Sans Japanese';
+	font-weight: 900;
+	color: #292819;
 }
