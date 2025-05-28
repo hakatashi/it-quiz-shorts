@@ -91,6 +91,7 @@ export const RemotionRoot: React.FC = () => {
 							],
 							answer: 'Qualcomm, Inc.',
 							alternativeAnswers: ['クアルコム'],
+							answerImage: null,
 						},
 						{
 							difficulty: 4,
@@ -135,6 +136,7 @@ export const RemotionRoot: React.FC = () => {
 							],
 							answer: 'TBW',
 							alternativeAnswers: ['Total Bytes Written'],
+							answerImage: null,
 						},
 						{
 							difficulty: 4,
@@ -183,6 +185,7 @@ export const RemotionRoot: React.FC = () => {
 							],
 							answer: 'xeyes',
 							alternativeAnswers: [],
+							answerImage: null,
 						},
 						{
 							difficulty: 2,
@@ -262,6 +265,7 @@ export const RemotionRoot: React.FC = () => {
 								'DX',
 								'デジタル変革',
 							],
+							answerImage: null,
 						},
 						{
 							difficulty: 5,
@@ -336,6 +340,13 @@ export const RemotionRoot: React.FC = () => {
 								'Roofline Model',
 								'Roofline Analysis',
 							],
+							answerImage: {
+								url: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Roofline_model.png',
+								copyrightText: [
+									'Based on the image “Roofline model.png” on Wikimedia Commons',
+									'Authored by Mewtow and licenced under CC0 1.0 Universal Public Domain Dedication',
+								].join('\n'),
+							},
 						},
 					],
 				}}

@@ -29,6 +29,13 @@ export const itQuizCompositionSchema = z.object({
 			answer: z.string(),
 			alternativeAnswers: z.array(z.string()),
 			answerSpeechFileName: z.string(),
+			answerImage: z.union([
+				z.object({
+					url: z.string(),
+					copyrightText: z.string(),
+				}),
+				z.null(),
+			]),
 		}),
 	),
 });
@@ -74,7 +81,7 @@ export const ItQuizComposition: React.FC<
 					// eslint-disable-next-line @remotion/no-background-image
 					backgroundImage: `url(${staticFile('images/bg_pattern.jpg')})`,
 					// @ts-expect-error: CSS variable not recognized by TypeScript
-					'--background-offset': `${((frame / fps) / 30) * 100}%`,
+					'--background-offset': `${(frame / fps / 30) * 100}%`,
 				}}
 			/>
 			<Sequence durationInFrames={3.5 * fps}>
@@ -109,6 +116,7 @@ export const ItQuizComposition: React.FC<
 						answerSpeechFileName={quiz.answerSpeechFileName}
 						voiceVolume={2.5}
 						questionVolume={1.5}
+						answerImage={quiz.answerImage}
 					/>
 				</Sequence>
 			))}

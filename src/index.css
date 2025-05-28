@@ -72,8 +72,6 @@
 	border: 5px solid #292819;
 	background-color: white;
 	text-align: center;
-
-	flex-direction: column !important;
 }
 
 .intro_question_image_area {
@@ -110,19 +108,53 @@
 }
 
 .quiz_difficulty {
-	top: 310px !important;
+	top: 300px !important;
 	left: 250px !important;
+	right: auto !important;
+	bottom: auto !important;
 	width: auto !important;
 	height: auto !important;
 	text-align: left;
 	font-family: 'Noto Serif Japanese';
 	font-size: 38px;
 	color: #222;
+	z-index: 0;
+}
+
+.quiz_difficulty::before {
+	content: '';
+	position: absolute;
+	top: calc(100% - 15px);
+	left: 0;
+	/* right: calc(100% - var(--animation-ratio, 0%)); */
+	right: 0;
+	bottom: 5px;
+	z-index: -1;
+}
+
+.quiz_difficulty.difficulty_1::before {
+	background-color: rgb(185, 255, 200);
+}
+
+.quiz_difficulty.difficulty_2::before {
+	background-color: rgb(244, 254, 108);
+}
+
+.quiz_difficulty.difficulty_3::before {
+	background-color: rgb(249, 210, 158);
+}
+
+.quiz_difficulty.difficulty_4::before {
+	background-color: rgb(255, 185, 185);
+}
+
+.quiz_difficulty.difficulty_5::before {
+	background-color: rgb(255, 35, 35);
 }
 
 .quiz_id {
-	top: 310px !important;
-	right: 50px !important;
+	top: 303px !important;
+	right: 35px !important;
 	width: auto !important;
 	height: auto !important;
 	text-align: right;
@@ -152,37 +184,6 @@
 	clip-path: inset(0px var(--hidden-ratio) 0px 0px);
 }
 
-svg.countdown_circle circle {
-	stroke: #333;
-	stroke-width: 8;
-	stroke-dasharray: calc(200 * 2 * pi * var(--ratio)) calc(200 * 2 * pi);
-	transform: scaleX(-1) rotate(-90deg);
-	transform-origin: center;
-	fill: none;
-}
-
-.answer_text {
-	text-align: center;
-	transform-origin: center;
-	justify-content: center;
-	align-items: center;
-}
-
-.answer_text .main_answer {
-	-webkit-text-stroke: 12px #292819;
-	paint-order: stroke fill;
-	font-family: 'M PLUS 1';
-	color: #fcee21;
-	font-size: 140px;
-	line-height: 1em;
-}
-
-.answer_text .alternative_answers {
-	color: #292819;
-	font-family: 'M PLUS 1';
-	font-size: 50px;
-}
-
 .quiz_volume {
 	left: 50% !important;
 	transform: translateX(-50%);
@@ -196,7 +197,8 @@ svg.countdown_circle circle {
 	top: 1100px !important;
 	width: 480px !important;
 	height: 62px !important;
-	font-size: 40px;
+	font-size: 42px;
+	line-height: 62px;
 }
 
 .quiz_volume.quiz_volume_quiz {
@@ -222,9 +224,78 @@ svg.countdown_circle circle {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	font-size: 280px;
+	font-size: 260px;
 	color: #333;
 	font-family: 'Noto Sans Japanese';
+
+	-webkit-text-stroke: 10px white;
+	paint-order: stroke fill;
+	z-index: 0;
+}
+
+.countdown_number::before {
+	content: attr(data-second);
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	-webkit-text-stroke: 20px #333;
+	z-index: -1;
+}
+
+.countdown_number::after {
+	content: attr(data-second);
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	-webkit-text-stroke: 20px #333;
+	transform: translate(5px, 5px);
+	z-index: -2;
+}
+
+svg.countdown_circle circle {
+	stroke: #333;
+	stroke-width: 8;
+	stroke-dasharray: calc(200 * 2 * pi * var(--ratio)) calc(200 * 2 * pi);
+	transform: scaleX(-1) rotate(-90deg);
+	transform-origin: center;
+	fill: none;
+}
+
+.answer_text {
+	text-align: center;
+	transform-origin: center;
+	justify-content: center;
+	align-items: center;
+}
+
+.answer_text .main_answer {
+	-webkit-text-stroke: 12px #292819;
+	paint-order: stroke fill;
+	font-family: 'M PLUS 1';
+	color: #fcee21;
+	font-size: 140px;
+	line-height: 1em;
+	z-index: 0;
+}
+
+.answer_text .alternative_answers {
+	color: #292819;
+	font-family: 'M PLUS 1';
+	font-size: 50px;
+	line-height: 1.2em;
+	margin-top: 0.3em;
 }
 
 .answer_text_wrapper {
@@ -234,6 +305,40 @@ svg.countdown_circle circle {
 	bottom: 300px !important;
 	width: 100% !important;
 	height: auto !important;
+}
+
+.answer_image {
+	position: absolute;
+	top: 410px !important;
+	left: 100px !important;
+	right: 100px !important;
+	width: auto !important;
+	height: 700px !important;
+	bottom: auto !important;
+
+	border: 5px solid #292819;
+	background-color: white;
+	text-align: center;
+	padding: 20px;
+}
+
+.answer_image_image_area {
+	flex: 1;
+}
+
+.answer_image_image {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	object-position: center;
+}
+
+.answer_image_text_area {
+	flex: 0 0 auto;
+	font-size: 20px;
+	line-height: 1.2em;
+	font-family: 'Noto Sans Japanese';
+	text-align: right;
 }
 
 .ending_text {

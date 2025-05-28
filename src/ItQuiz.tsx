@@ -1,6 +1,14 @@
 import {loadFont} from '@remotion/fonts';
 import {range} from 'lodash-es';
-import {Audio, Img, Sequence, spring, staticFile} from 'remotion';
+import {
+	Audio,
+	Easing,
+	Img,
+	interpolate,
+	Sequence,
+	spring,
+	staticFile,
+} from 'remotion';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 import {z} from 'zod';
 
@@ -63,6 +71,13 @@ export const itQuizSchema = z.object({
 	answerSpeechFileName: z.string(),
 	voiceVolume: z.number().min(0).max(1).default(2.5),
 	questionVolume: z.number().min(0).max(1).default(1.5),
+	answerImage: z.union([
+		z.object({
+			url: z.string(),
+			copyrightText: z.string(),
+		}),
+		z.null(),
+	]),
 });
 
 const extractMarkIndex = (markName: string | null | undefined) =>
@@ -123,6 +138,7 @@ const CountDown: React.FC<{
 					transform: `translate(-50%, -50%) translateY(-20px) scale(${secondScale})`,
 				}}
 				className="countdown_number"
+				data-second={second}
 			>
 				{second}
 			</AbsoluteFill>
@@ -151,12 +167,36 @@ const AnswerText: React.FC<{
 				height: 'auto',
 			}}
 		>
-			<div className="main_answer">{answer}</div>
+			<div className="main_answer" data-answer={answer}>
+				{answer}
+			</div>
 			{alternativeAnswers.length > 0 && (
 				<div className="alternative_answers">
 					({alternativeAnswers.join('、')})
 				</div>
 			)}
+		</AbsoluteFill>
+	);
+};
+
+const AnswerImage: React.FC<{
+	url: string;
+	copyrightText: string;
+}> = ({url, copyrightText}) => {
+	const copyrightTextLines = copyrightText.split('\n');
+	return (
+		<AbsoluteFill className="answer_image">
+			<div className="answer_image_image_area">
+				<Img src={url} className="answer_image_image" />
+			</div>
+			<div className="answer_image_text_area">
+				{copyrightTextLines.map((line, index) => (
+					<>
+						<span key={index}>{line}</span>
+						{index < copyrightTextLines.length - 1 && <br />}
+					</>
+				))}
+			</div>
 		</AbsoluteFill>
 	);
 };
@@ -175,6 +215,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	answerSpeechFileName,
 	voiceVolume = 2.5,
 	questionVolume = 1.5,
+	answerImage,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -237,6 +278,15 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	const countdownEndFrame = countdownStartFrame + countdownDuration;
 	const answerReadingStartFrame = countdownEndFrame + answerPreparationDuration;
 
+	const difficultyAnimationRatio = interpolate(
+		frame,
+		[quizStartFrame, quizStartFrame + fps * 0.8, countdownStartFrame],
+		[0, 1, 1],
+		{
+			easing: Easing.out(Easing.exp),
+		},
+	);
+
 	return (
 		<AbsoluteFill>
 			<AbsoluteFill>
@@ -266,7 +316,13 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 				</AbsoluteFill>
 			</Sequence>
 			<Sequence from={quizStartFrame} name="Quiz Text">
-				<AbsoluteFill className="quiz_difficulty">
+				<AbsoluteFill
+					className={`quiz_difficulty difficulty_${difficulty}`}
+					style={{
+						// @ts-expect-error: Type doesn't support CSS variables
+						'--animation-ratio': `${difficultyAnimationRatio * 100}%`,
+					}}
+				>
 					{getDifficultyText(difficulty)}
 				</AbsoluteFill>
 				<AbsoluteFill className="quiz_id">No.{quizId}</AbsoluteFill>
@@ -323,6 +379,12 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 				<AbsoluteFill className="answer_text_wrapper">
 					<AnswerText answer={answer} alternativeAnswers={alternativeAnswers} />
 				</AbsoluteFill>
+				{answerImage && (
+					<AnswerImage
+						url={answerImage.url}
+						copyrightText={answerImage.copyrightText}
+					/>
+				)}
 			</Sequence>
 			<Sequence from={answerReadingStartFrame} name="Answer Reading">
 				<Audio
