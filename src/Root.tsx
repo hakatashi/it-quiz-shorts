@@ -10,12 +10,16 @@ export const RemotionRoot: React.FC = () => {
 			<Composition
 				id="ItQuiz"
 				component={ItQuiz}
-				durationInFrames={30 * 10}
+				durationInFrames={30 * 20}
 				fps={30}
 				width={1080}
 				height={1920}
 				schema={itQuizSchema}
 				defaultProps={{
+					volumes: 1,
+					date: '2025-05-28',
+					difficulty: 2,
+					quizId: 3541,
 					clauses: [
 						'2つの',
 						'<ruby><rb>目玉</rb><rp>（</rp><rt>めだま</rt><rp>）</rp></ruby>が',
@@ -55,6 +59,9 @@ export const RemotionRoot: React.FC = () => {
 						{timeSeconds: 7.8650431632995605, markName: 'c16'},
 						{timeSeconds: 8.490041732788086, markName: 'c17'},
 						{timeSeconds: 9.066541666666666, markName: 'c18'},
+					],
+					answer: 'xeyes',
+					alternativeAnswers: [
 					],
 				}}
 			/>

@@ -1,22 +1,47 @@
 import {loadFont} from '@remotion/fonts';
-import {Audio, staticFile} from 'remotion';
+import { range } from 'lodash-es';
+import {Audio, Img, Sequence, spring, staticFile} from 'remotion';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 import {z} from 'zod';
 
 loadFont({
 	family: 'Noto Sans Japanese',
 	url: staticFile('fonts/NotoSansJP-Bold.ttf'),
+	weight: '700',
+});
+
+loadFont({
+	family: 'Noto Serif Japanese',
+	url: staticFile('fonts/NotoSerifJP-SemiBold.ttf'),
 	weight: '600',
-}).then(() => console.log('Font loaded!'));
+});
+
+loadFont({
+	family: 'Monaspace Neon',
+	url: staticFile('fonts/MonaspaceNeon-ExtraBold.otf'),
+	weight: '900',
+});
+
+loadFont({
+	family: 'M PLUS 1',
+	url: staticFile('fonts/Mplus1-Bold.otf'),
+	weight: '700',
+});
 
 export const itQuizSchema = z.object({
+	volumes: z.number().min(1),
+	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 	clauses: z.array(z.string()),
+	difficulty: z.number().int().min(1).max(5),
+	quizId: z.number().int().min(0),
 	timepoints: z.array(
 		z.object({
 			timeSeconds: z.number(),
 			markName: z.string(),
 		}),
 	),
+	answer: z.string(),
+	alternativeAnswers: z.array(z.string()),
 });
 
 const extractMarkIndex = (markName: string | null | undefined) =>
@@ -27,16 +52,101 @@ const extractMarkIndex = (markName: string | null | undefined) =>
 interface ClauseInformation {
 	html: string;
 	duration: number;
-	hiddenRatio: number;
+	hiddenRatio: string;
 }
 
+const CountDown: React.FC<{
+	second: number;
+}> = ({second}) => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+
+	const secondScale = spring({
+		fps,
+		frame,
+		durationInFrames: 10,
+	})
+
+	return (
+		<AbsoluteFill>
+			<svg className="countdown_circle" width="600" height="600">
+				<circle
+					cx="50%"
+					cy="50%"
+					r="200"
+					style={{
+						// @ts-expect-error: Type doesn't support CSS variables
+						'--ratio': 1 - frame / (0.8 * fps),
+					}}
+				/>
+			</svg>
+			<AbsoluteFill
+				style={{
+					top: '50%',
+					left: '50%',
+					width: '100%',
+					height: '100%',
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					fontSize: 280,
+					color: '#333',
+					fontFamily: 'Noto Sans Japanese',
+					transform: `translate(-50%, -50%) translateY(-20px) scale(${secondScale})`,
+				}}
+			>
+				{second}
+			</AbsoluteFill>
+		</AbsoluteFill>
+	)
+};
+
+const AnswerText: React.FC<{
+	answer: string;
+	alternativeAnswers: string[];
+}> = ({answer, alternativeAnswers}) => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+
+	const textScale = spring({
+		fps,
+		frame,
+		durationInFrames: 10,
+	})
+
+	return (
+		<AbsoluteFill
+			className="answer_text"
+			style={{
+				transform: `scale(${textScale})`,
+				height: 'auto',
+			}}
+		>
+			<div className="main_answer">
+				{answer}
+			</div>
+			{alternativeAnswers.length > 0 && (
+				<div className="alternative_answers">
+					({alternativeAnswers.join('、')})
+				</div>
+			)}
+		</AbsoluteFill>
+	)
+};
+
 export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
+	volumes,
+	date,
+	difficulty,
+	quizId,
 	clauses,
 	timepoints,
+	answer,
+	alternativeAnswers,
 }) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, fps} = useVideoConfig();
-	const timestamp = frame / fps;
+	const timestamp = frame / fps - 1;
 
 	const sortedTimepoints = timepoints.sort(
 		(a, b) => extractMarkIndex(a.markName) - extractMarkIndex(b.markName),
@@ -67,14 +177,34 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 		clauseInformation.push({
 			html: clause,
 			duration,
-			hiddenRatio,
+			hiddenRatio: `${hiddenRatio * 100}%`,
 		});
 
 		offset = timeSeconds;
 		previousMarkIndex = markIndex;
 	}
 
-	// A <AbsoluteFill> is just a absolutely positioned <div>!
+	const quizTitleScale = spring({
+		fps,
+		frame,
+		durationInFrames: 15,
+	});
+
+	const quizSentenceDuration = clauseInformation.reduce(
+		(acc, clause) => acc + clause.duration,
+		0,
+	);
+
+	const quizPreparationDuration = fps * 1;
+	const quizReadingDuration = Math.floor(quizSentenceDuration * fps);
+	const countdownDuration = fps * 0.8 * 3;
+	const answerPreparationDuration = fps * 1;
+
+	const quizStartFrame = quizPreparationDuration;
+	const countdownStartFrame = quizStartFrame + quizReadingDuration;
+	const countdownEndFrame = countdownStartFrame + countdownDuration;
+	const answerReadingStartFrame = countdownEndFrame + answerPreparationDuration;
+
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
 			<Audio
@@ -82,28 +212,164 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 				volume={0.2}
 				startFrom={18 * fps}
 			/>
-			<Audio src={staticFile('speeches/test.mp3')} volume={2} />
+			<AbsoluteFill>
+				<Img src={staticFile('images/quiz.png')} />
+			</AbsoluteFill>
+			<Sequence durationInFrames={quizPreparationDuration} name="Quiz Preparation">
+				<Audio
+					src={staticFile('voices/tsumugi/第1問.wav')}
+					volume={2}
+				/>
+				<Audio
+					src={staticFile('soundeffects/和太鼓でドドン.mp3')}
+					volume={1}
+				/>
+				<AbsoluteFill style={{
+					top: 600,
+					left: '50%',
+					right: 'auto',
+					bottom: 'auto',
+					width: '100%',
+					height: 'auto',
+					textAlign: 'center',
+					fontSize: 180,
+					fontFamily: 'Noto Sans Japanese',
+					transformOrigin: 'center',
+					transform: `translateX(-50%) scale(${quizTitleScale})`,
+				}}>
+					第1問
+				</AbsoluteFill>
+			</Sequence>
+			<Sequence from={quizStartFrame} name="Quiz Text">
+				<AbsoluteFill
+					style={{
+						top: 310,
+						left: 250,
+						textAlign: 'left',
+						fontFamily: 'Noto Serif Japanese',
+						width: 'auto',
+						height: 'auto',
+						fontSize: 38,
+						color: '#222',
+						display: 'block',
+					}}
+					className="quiz_difficulty"
+				>
+					難易度★★☆☆☆ (少し難しい)
+				</AbsoluteFill>
+				<AbsoluteFill
+					style={{
+						top: 310,
+						right: 50,
+						textAlign: 'right',
+						fontFamily: 'Noto Sans Japanese',
+						width: 'auto',
+						height: 'auto',
+						fontSize: 38,
+						color: '#222',
+						display: 'block',
+					}}
+					className="quiz_id"
+				>
+					No.{quizId}
+				</AbsoluteFill>
+				<AbsoluteFill
+					style={{
+						top: 400,
+						left: 50,
+						right: 50,
+						width: 'auto',
+						fontFamily: 'Noto Sans Japanese',
+						fontSize: 60,
+						color: '#222',
+						display: 'block',
+					}}
+					className="quiz"
+				>
+					{clauseInformation.map((clause, index) => (
+						<span
+							key={index}
+							style={{
+								// @ts-expect-error: Type doesn't support CSS variables
+								'--hidden-ratio': clause.hiddenRatio,
+								'--background-image': `url(${staticFile('images/opening1.png')})`,
+							}}
+							class="quiz_clause"
+							dangerouslySetInnerHTML={{__html: clause.html}}
+						/>
+					))}
+				</AbsoluteFill>
+			</Sequence>
+			<Sequence from={quizStartFrame} durationInFrames={quizReadingDuration} name="Quiz Audio">
+				<Audio
+					src={staticFile('speeches/test.mp3')}
+					volume={2}
+				/>
+			</Sequence>
+			<Sequence from={countdownStartFrame} durationInFrames={countdownDuration} name="Countdown">
+				{range(0, 3).map((i) => (
+					<Sequence key={i} from={i * fps * 0.8} durationInFrames={fps * 0.8}>
+						<AbsoluteFill
+							style={{
+								top: 1200,
+								left: '50%',
+								width: 600,
+								height: 600,
+								transform: 'translateX(-50%)',
+							}}
+						>
+							<CountDown second={3 - i} />
+						</AbsoluteFill>
+						<Audio
+							src={staticFile('soundeffects/決定ボタンを押す52.mp3')}
+							volume={2}
+						/>
+					</Sequence>
+				))}
+			</Sequence>
+			<Sequence from={countdownEndFrame} durationInFrames={answerPreparationDuration} name="Answer Preparation">
+				<Audio
+					src={staticFile('voices/tsumugi/正解は.wav')}
+					volume={2}
+				/>
+			</Sequence>
+			<Sequence from={answerReadingStartFrame} durationInFrames={60} name="Answer Reading">
+				<Audio
+					src={staticFile('voices/tsumugi/エックスアイズ.wav')}
+					volume={2}
+				/>
+				<Audio
+					src={staticFile('soundeffects/決定ボタンを押す4.mp3')}
+					volume={2}
+				/>
+				<AbsoluteFill
+					style={{
+						top: 1250,
+						left: 0,
+						right: 0,
+						bottom: 300,
+						height: 'auto',
+						width: '100%',
+					}}
+				>
+					<AnswerText answer={answer} alternativeAnswers={alternativeAnswers} />
+				</AbsoluteFill>
+			</Sequence>
 			<AbsoluteFill
 				style={{
-					fontFamily: 'Noto Sans Japanese',
-					fontSize: 72,
-					color: '#222',
-					display: 'block',
+					top: 180,
+					left: '50%',
+					width: 320,
+					height: 42,
+					transform: 'translateX(-50%)',
+					backgroundColor: 'black',
+					textAlign: 'center',
+					fontSize: 28,
+					color: '#00ff00',
+					fontFamily: 'Monaspace Neon',
 				}}
-				class="quiz"
 			>
-				{clauseInformation.map((clause, index) => (
-					<span
-						key={index}
-						style={{
-							display: 'inline-block',
-							// @ts-expect-error: Type doesn't support CSS variables
-							'--hidden-ratio': clause.hiddenRatio,
-						}}
-						class="quiz_clause"
-						dangerouslySetInnerHTML={{__html: clause.html}}
-					/>
-				))}
+				#{volumes} ({date})
 			</AbsoluteFill>
 		</AbsoluteFill>
 	);

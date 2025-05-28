@@ -36,6 +36,9 @@
 				"rules": {
 					"correctness": {
 						"noUndeclaredDependencies": "off"
+					},
+					"suspicious": {
+						"noReactSpecificProps": "off"
 					}
 				}
 			}

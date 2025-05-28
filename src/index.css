@@ -1,26 +1,44 @@
 @import 'tailwindcss';
 
 .quiz {
-	font-size: 2rem;
 	font-weight: bold;
 	line-height: 1.5em;
+	line-break: strict;
 }
 
 .quiz_clause {
 	display: inline-block;
 	position: relative;
+	line-break: strict;
+	clip-path: inset(0px var(--hidden-ratio) 0px 0px);
 }
 
-.quiz_clause::after {
-	content: '';
-	display: inline-block;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	right: 0;
-	left: 0;
-	background-color: white;
+svg.countdown_circle circle {
+	stroke: #333;
+	stroke-width: 8;
+	stroke-dasharray: calc(200 * 2 * pi * var(--ratio)) calc(200 * 2 * pi);
+	transform: scaleX(-1) rotate(-90deg);
+	transform-origin: center;
+	fill: none;
+}
 
-	transform: scaleX(var(--hidden-ratio));
-	transform-origin: 100% 50%;
+.answer_text {
+	text-align: center;
+	transform-origin: center;
+	justify-content: center;
+	align-items: center;
+}
+
+.answer_text .main_answer {
+	-webkit-text-stroke: 12px #292819;
+	paint-order: stroke fill;
+	font-family: 'M PLUS 1';
+	color: #fcee21;
+	font-size: 140px;
+}
+
+.answer_text .alternative_answers {
+	color: #292819;
+	font-family: 'M PLUS 1';
+	font-size: 50px;
 }
