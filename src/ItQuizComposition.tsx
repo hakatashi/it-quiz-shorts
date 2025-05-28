@@ -65,6 +65,8 @@ export const ItQuizComposition: React.FC<
 						alternativeAnswers={quiz.alternativeAnswers}
 						questionSpeechFileName={quiz.questionSpeechFileName}
 						answerSpeechFileName={quiz.answerSpeechFileName}
+						voiceVolume={2.5}
+						questionVolume={1.5}
 					/>
 				</Sequence>
 			))}

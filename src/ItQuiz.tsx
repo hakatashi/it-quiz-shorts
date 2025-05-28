@@ -243,7 +243,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 			>
 				<Audio
 					src={staticFile(`voices/tsumugi/第${quizIndex}問.wav`)}
-					volume={voiceVolume}
+					volume={() => voiceVolume}
 					useWebAudioApi
 					crossOrigin="anonymous"
 				/>
@@ -284,7 +284,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 			>
 				<Audio
 					src={staticFile(`speeches/${questionSpeechFileName}`)}
-					volume={questionVolume}
+					volume={() => questionVolume}
 					useWebAudioApi
 					crossOrigin="anonymous"
 				/>
@@ -299,24 +299,18 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 						<AbsoluteFill className="countdown">
 							<CountDown second={3 - i} />
 						</AbsoluteFill>
-						<Audio
-							src={staticFile('soundeffects/決定ボタンを押す52.mp3')}
-							volume={2}
-						/>
+						<Audio src={staticFile('soundeffects/決定ボタンを押す52.mp3')} />
 					</Sequence>
 				))}
 			</Sequence>
 			<Sequence from={countdownEndFrame} name="Answer Preparation">
 				<Audio
 					src={staticFile('voices/tsumugi/正解は.wav')}
-					volume={voiceVolume}
+					volume={() => voiceVolume}
 					useWebAudioApi
 					crossOrigin="anonymous"
 				/>
-				<Audio
-					src={staticFile('soundeffects/決定ボタンを押す4.mp3')}
-					volume={2}
-				/>
+				<Audio src={staticFile('soundeffects/決定ボタンを押す4.mp3')} />
 				<AbsoluteFill className="answer_text_wrapper">
 					<AnswerText answer={answer} alternativeAnswers={alternativeAnswers} />
 				</AbsoluteFill>
@@ -324,7 +318,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 			<Sequence from={answerReadingStartFrame} name="Answer Reading">
 				<Audio
 					src={staticFile(`speeches/${answerSpeechFileName}`)}
-					volume={voiceVolume}
+					volume={() => voiceVolume}
 					useWebAudioApi
 					crossOrigin="anonymous"
 				/>

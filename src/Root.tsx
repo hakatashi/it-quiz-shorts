@@ -219,7 +219,7 @@ export const RemotionRoot: React.FC = () => {
 								{timeSeconds: 2.0652074813842773, markName: 'c1'},
 								{timeSeconds: 2.325207471847534, markName: 'c2'},
 								{timeSeconds: 3.052332878112793, markName: 'c3'},
-								{timeSeconds: 3.4686660766601562, markName: 'c4'},
+								{timeSeconds: 3.468666076660156, markName: 'c4'},
 								{timeSeconds: 3.939957857131958, markName: 'c5'},
 								{timeSeconds: 4.224958419799805, markName: 'c6'},
 								{timeSeconds: 4.67020845413208, markName: 'c7'},
