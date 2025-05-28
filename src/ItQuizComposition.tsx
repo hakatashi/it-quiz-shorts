@@ -36,7 +36,7 @@ export const ItQuizComposition: React.FC<
 			(acc, timepoint) => Math.max(acc, timepoint.timeSeconds),
 			0,
 		);
-		return Math.floor(quizDuration * fps) + fps * 6.5;
+		return Math.floor(quizDuration * fps) + fps * 6.1;
 	});
 
 	return (

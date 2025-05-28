@@ -53,6 +53,8 @@ export const itQuizSchema = z.object({
 	answer: z.string(),
 	alternativeAnswers: z.array(z.string()),
 	answerSpeechFileName: z.string(),
+	voiceVolume: z.number().min(0).max(1).default(2.5),
+	questionVolume: z.number().min(0).max(1).default(1.5),
 });
 
 const extractMarkIndex = (markName: string | null | undefined) =>
@@ -163,6 +165,8 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	alternativeAnswers,
 	questionSpeechFileName,
 	answerSpeechFileName,
+	voiceVolume = 2.5,
+	questionVolume = 1.5,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -218,7 +222,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	const quizPreparationDuration = fps * 1;
 	const quizReadingDuration = Math.floor(quizSentenceDuration * fps);
 	const countdownDuration = fps * 0.8 * 3;
-	const answerPreparationDuration = fps * 1;
+	const answerPreparationDuration = fps * 0.8;
 
 	const quizStartFrame = quizPreparationDuration;
 	const countdownStartFrame = quizStartFrame + quizReadingDuration;
@@ -239,9 +243,11 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 			>
 				<Audio
 					src={staticFile(`voices/tsumugi/第${quizIndex}問.wav`)}
-					volume={2}
+					volume={voiceVolume}
+					useWebAudioApi
+					crossOrigin="anonymous"
 				/>
-				<Audio src={staticFile('soundeffects/和太鼓でドドン.mp3')} volume={1} />
+				<Audio src={staticFile('soundeffects/拍子木2.mp3')} volume={0.7} />
 				<AbsoluteFill
 					style={{
 						transform: `translateX(-50%) scale(${quizTitleScale})`,
@@ -278,7 +284,9 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 			>
 				<Audio
 					src={staticFile(`speeches/${questionSpeechFileName}`)}
-					volume={2}
+					volume={questionVolume}
+					useWebAudioApi
+					crossOrigin="anonymous"
 				/>
 			</Sequence>
 			<Sequence
@@ -298,17 +306,12 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 					</Sequence>
 				))}
 			</Sequence>
-			<Sequence
-				from={countdownEndFrame}
-				durationInFrames={answerPreparationDuration}
-				name="Answer Preparation"
-			>
-				<Audio src={staticFile('voices/tsumugi/正解は.wav')} volume={2} />
-			</Sequence>
-			<Sequence from={answerReadingStartFrame} name="Answer Reading">
+			<Sequence from={countdownEndFrame} name="Answer Preparation">
 				<Audio
-					src={staticFile(`speeches/${answerSpeechFileName}`)}
-					volume={2}
+					src={staticFile('voices/tsumugi/正解は.wav')}
+					volume={voiceVolume}
+					useWebAudioApi
+					crossOrigin="anonymous"
 				/>
 				<Audio
 					src={staticFile('soundeffects/決定ボタンを押す4.mp3')}
@@ -317,6 +320,14 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 				<AbsoluteFill className="answer_text_wrapper">
 					<AnswerText answer={answer} alternativeAnswers={alternativeAnswers} />
 				</AbsoluteFill>
+			</Sequence>
+			<Sequence from={answerReadingStartFrame} name="Answer Reading">
+				<Audio
+					src={staticFile(`speeches/${answerSpeechFileName}`)}
+					volume={voiceVolume}
+					useWebAudioApi
+					crossOrigin="anonymous"
+				/>
 			</Sequence>
 		</AbsoluteFill>
 	);
