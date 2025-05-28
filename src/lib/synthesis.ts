@@ -9,7 +9,7 @@ import fs from 'fs-extra';
 const textToSpeechClient = new GoogleCloudTextToSpeech.TextToSpeechClient();
 
 const getSpeech = async (ssml: string, voiceType: string) => {
-	const speed = 1.2;
+	const speed = 1.4;
 
 	const [response] = await textToSpeechClient.synthesizeSpeech({
 		input: {
@@ -367,8 +367,8 @@ export const synthesisToFile = async (text: string, filename: string) => {
 
 if (require.main === module) {
 	const text =
-		'2つの<ruby><rb>目玉</rb><rp>（</rp><rt>めだま</rt><rp>）</rp></ruby>がマウスポインタの動きを追いかけるというシンプルかつユーモラスな動作が特徴の、X Window Systemのデモアプリケーションは何でしょう？';
-	const filename = 'output.mp3';
+		'SSDが寿命を迎えるまでに書き込めるデータの総量をテラバイト単位で表した、SSDの耐久性の指標をアルファベット3文字で何というでしょう？';
+	const filename = 'test_question2.mp3';
 
 	synthesisToFile(text, filename)
 		.then((d) =>
