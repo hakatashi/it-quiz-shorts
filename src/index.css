@@ -79,6 +79,7 @@ svg.countdown_circle circle {
 	font-family: 'M PLUS 1';
 	color: #fcee21;
 	font-size: 140px;
+	line-height: 1em;
 }
 
 .answer_text .alternative_answers {

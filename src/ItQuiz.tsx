@@ -1,5 +1,5 @@
 import {loadFont} from '@remotion/fonts';
-import { range } from 'lodash-es';
+import {range} from 'lodash-es';
 import {Audio, Img, Sequence, spring, staticFile} from 'remotion';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 import {z} from 'zod';
@@ -8,29 +8,38 @@ loadFont({
 	family: 'Noto Sans Japanese',
 	url: staticFile('fonts/NotoSansJP-Bold.ttf'),
 	weight: '700',
+}).then(() => {
+	console.log('Noto Sans Japanese font loaded');
 });
 
 loadFont({
 	family: 'Noto Serif Japanese',
 	url: staticFile('fonts/NotoSerifJP-SemiBold.ttf'),
 	weight: '600',
+}).then(() => {
+	console.log('Noto Serif Japanese font loaded');
 });
 
 loadFont({
 	family: 'Monaspace Neon',
 	url: staticFile('fonts/MonaspaceNeon-ExtraBold.otf'),
 	weight: '900',
+}).then(() => {
+	console.log('Monaspace Neon font loaded');
 });
 
 loadFont({
 	family: 'M PLUS 1',
 	url: staticFile('fonts/Mplus1-Bold.otf'),
 	weight: '700',
+}).then(() => {
+	console.log('M PLUS 1 font loaded');
 });
 
 export const itQuizSchema = z.object({
 	volumes: z.number().min(1),
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+	quizIndex: z.number().int().min(1),
 	clauses: z.array(z.string()),
 	difficulty: z.number().int().min(1).max(5),
 	quizId: z.number().int().min(0),
@@ -66,7 +75,7 @@ const getDifficultyText = (difficulty: number) => {
 		default:
 			throw new Error(`Invalid difficulty: ${difficulty}`);
 	}
-}
+};
 
 interface ClauseInformation {
 	html: string;
@@ -84,7 +93,7 @@ const CountDown: React.FC<{
 		fps,
 		frame,
 		durationInFrames: 10,
-	})
+	});
 
 	return (
 		<AbsoluteFill>
@@ -108,7 +117,7 @@ const CountDown: React.FC<{
 				{second}
 			</AbsoluteFill>
 		</AbsoluteFill>
-	)
+	);
 };
 
 const AnswerText: React.FC<{
@@ -122,7 +131,7 @@ const AnswerText: React.FC<{
 		fps,
 		frame,
 		durationInFrames: 10,
-	})
+	});
 
 	return (
 		<AbsoluteFill
@@ -132,21 +141,20 @@ const AnswerText: React.FC<{
 				height: 'auto',
 			}}
 		>
-			<div className="main_answer">
-				{answer}
-			</div>
+			<div className="main_answer">{answer}</div>
 			{alternativeAnswers.length > 0 && (
 				<div className="alternative_answers">
 					({alternativeAnswers.join('、')})
 				</div>
 			)}
 		</AbsoluteFill>
-	)
+	);
 };
 
 export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	volumes,
 	date,
+	quizIndex,
 	difficulty,
 	quizId,
 	clauses,
@@ -225,31 +233,29 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 					#{volumes} ({date})
 				</AbsoluteFill>
 			</AbsoluteFill>
-			<Sequence durationInFrames={quizPreparationDuration} name="Quiz Preparation">
+			<Sequence
+				durationInFrames={quizPreparationDuration}
+				name="Quiz Preparation"
+			>
 				<Audio
-					src={staticFile('voices/tsumugi/第1問.wav')}
+					src={staticFile(`voices/tsumugi/第${quizIndex}問.wav`)}
 					volume={2}
 				/>
-				<Audio
-					src={staticFile('soundeffects/和太鼓でドドン.mp3')}
-					volume={1}
-				/>
+				<Audio src={staticFile('soundeffects/和太鼓でドドン.mp3')} volume={1} />
 				<AbsoluteFill
 					style={{
 						transform: `translateX(-50%) scale(${quizTitleScale})`,
 					}}
 					className="quiz_title"
 				>
-					第1問
+					第{quizIndex}問
 				</AbsoluteFill>
 			</Sequence>
 			<Sequence from={quizStartFrame} name="Quiz Text">
 				<AbsoluteFill className="quiz_difficulty">
 					{getDifficultyText(difficulty)}
 				</AbsoluteFill>
-				<AbsoluteFill className="quiz_id">
-					No.{quizId}
-				</AbsoluteFill>
+				<AbsoluteFill className="quiz_id">No.{quizId}</AbsoluteFill>
 				<AbsoluteFill className="quiz_text">
 					{clauseInformation.map((clause, index) => (
 						<span
@@ -265,13 +271,21 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 					))}
 				</AbsoluteFill>
 			</Sequence>
-			<Sequence from={quizStartFrame} durationInFrames={quizReadingDuration} name="Quiz Audio">
+			<Sequence
+				from={quizStartFrame}
+				durationInFrames={quizReadingDuration}
+				name="Quiz Audio"
+			>
 				<Audio
 					src={staticFile(`speeches/${questionSpeechFileName}`)}
 					volume={2}
 				/>
 			</Sequence>
-			<Sequence from={countdownStartFrame} durationInFrames={countdownDuration} name="Countdown">
+			<Sequence
+				from={countdownStartFrame}
+				durationInFrames={countdownDuration}
+				name="Countdown"
+			>
 				{range(0, 3).map((i) => (
 					<Sequence key={i} from={i * fps * 0.8} durationInFrames={fps * 0.8}>
 						<AbsoluteFill className="countdown">
@@ -284,13 +298,14 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 					</Sequence>
 				))}
 			</Sequence>
-			<Sequence from={countdownEndFrame} durationInFrames={answerPreparationDuration} name="Answer Preparation">
-				<Audio
-					src={staticFile('voices/tsumugi/正解は.wav')}
-					volume={2}
-				/>
+			<Sequence
+				from={countdownEndFrame}
+				durationInFrames={answerPreparationDuration}
+				name="Answer Preparation"
+			>
+				<Audio src={staticFile('voices/tsumugi/正解は.wav')} volume={2} />
 			</Sequence>
-			<Sequence from={answerReadingStartFrame} durationInFrames={60} name="Answer Reading">
+			<Sequence from={answerReadingStartFrame} name="Answer Reading">
 				<Audio
 					src={staticFile(`speeches/${answerSpeechFileName}`)}
 					volume={2}

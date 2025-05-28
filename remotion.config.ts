@@ -11,3 +11,4 @@ Config.overrideHeight(1920);
 Config.setVideoImageFormat('jpeg');
 Config.setOverwriteOutput(true);
 Config.overrideWebpackConfig(enableTailwind);
+Config.setDelayRenderTimeoutInMilliseconds(30 * 60 * 1000);

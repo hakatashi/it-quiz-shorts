@@ -1,7 +1,8 @@
-import {Audio, Sequence, spring, staticFile} from 'remotion';
+import {Audio, Sequence, staticFile} from 'remotion';
 import {AbsoluteFill, useVideoConfig} from 'remotion';
-import { ItQuiz } from './ItQuiz';
+import {ItQuiz} from './ItQuiz';
 import {z} from 'zod';
+import {sum} from 'lodash-es';
 
 export const itQuizCompositionSchema = z.object({
 	volumes: z.number().min(1),
@@ -25,12 +26,18 @@ export const itQuizCompositionSchema = z.object({
 	),
 });
 
-export const ItQuizComposition: React.FC<z.infer<typeof itQuizCompositionSchema>> = ({
-	volumes,
-	date,
-	quizzes,
-}) => {
+export const ItQuizComposition: React.FC<
+	z.infer<typeof itQuizCompositionSchema>
+> = ({volumes, date, quizzes}) => {
 	const {fps} = useVideoConfig();
+
+	const quizDurations = quizzes.map((quiz) => {
+		const quizDuration = quiz.timepoints.reduce(
+			(acc, timepoint) => Math.max(acc, timepoint.timeSeconds),
+			0,
+		);
+		return Math.floor(quizDuration * fps) + fps * 6.5;
+	});
 
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
@@ -43,12 +50,13 @@ export const ItQuizComposition: React.FC<z.infer<typeof itQuizCompositionSchema>
 				<Sequence
 					key={index}
 					name={`Quiz ${index + 1}`}
-					from={16 * fps * index}
-					durationInFrames={16 * fps}
+					from={sum(quizDurations.slice(0, index))}
+					durationInFrames={quizDurations[index]}
 				>
 					<ItQuiz
 						volumes={volumes}
 						date={date}
+						quizIndex={index + 1}
 						difficulty={quiz.difficulty}
 						quizId={quiz.quizId}
 						clauses={quiz.clauses}
