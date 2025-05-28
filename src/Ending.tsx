@@ -15,7 +15,7 @@ export const Ending: React.FC<z.infer<typeof endingSchema>> = () => {
 	});
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'white'}}>
+		<AbsoluteFill>
 			<Audio
 				src={staticFile('soundeffects/決定ボタンを押す1.mp3')}
 				volume={0.7}

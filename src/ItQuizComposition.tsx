@@ -1,4 +1,4 @@
-import {Audio, Sequence, staticFile} from 'remotion';
+import {Audio, Img, Sequence, staticFile, useCurrentFrame} from 'remotion';
 import {AbsoluteFill, useVideoConfig} from 'remotion';
 import {ItQuiz} from './ItQuiz';
 import {z} from 'zod';
@@ -46,6 +46,7 @@ export const ItQuizComposition: React.FC<
 	introQuestionImageCopyrightText,
 }) => {
 	const {fps} = useVideoConfig();
+	const frame = useCurrentFrame();
 
 	const quizDurations = quizzes.map((quiz) => {
 		const quizDuration = quiz.timepoints.reduce(
@@ -62,7 +63,21 @@ export const ItQuizComposition: React.FC<
 				volume={0.15}
 				startFrom={19 * fps}
 			/>
-			<Sequence durationInFrames={4 * fps}>
+			{/* Fake image to preload the background image */}
+			<Img
+				src={staticFile('images/bg_pattern.jpg')}
+				style={{opacity: 0, position: 'absolute', left: '-100%'}}
+			/>
+			<AbsoluteFill
+				className="background"
+				style={{
+					// eslint-disable-next-line @remotion/no-background-image
+					backgroundImage: `url(${staticFile('images/bg_pattern.jpg')})`,
+					// @ts-expect-error: CSS variable not recognized by TypeScript
+					'--background-offset': `${((frame / fps) / 30) * 100}%`,
+				}}
+			/>
+			<Sequence durationInFrames={3.5 * fps}>
 				<Opening
 					volumes={volumes}
 					date={date}
@@ -77,7 +92,7 @@ export const ItQuizComposition: React.FC<
 				<Sequence
 					key={index}
 					name={`Quiz ${index + 1}`}
-					from={sum(quizDurations.slice(0, index)) + 4 * fps}
+					from={sum(quizDurations.slice(0, index)) + 3.5 * fps}
 					durationInFrames={quizDurations[index]}
 				>
 					<ItQuiz
@@ -97,7 +112,7 @@ export const ItQuizComposition: React.FC<
 					/>
 				</Sequence>
 			))}
-			<Sequence from={sum(quizDurations) + 4 * fps}>
+			<Sequence from={sum(quizDurations) + 3.5 * fps}>
 				<Ending />
 			</Sequence>
 		</AbsoluteFill>

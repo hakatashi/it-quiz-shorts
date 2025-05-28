@@ -1,5 +1,13 @@
 @import 'tailwindcss';
 
+.background {
+	background-image: none;
+	background-repeat: repeat;
+	background-position: calc(var(--background-offset, 0%) * 1)
+		calc(var(--background-offset, 0%) * 0.7);
+	opacity: 0.15;
+}
+
 .title1 {
 	position: absolute;
 	top: 280px;

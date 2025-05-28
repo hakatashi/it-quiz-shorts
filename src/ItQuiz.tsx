@@ -238,7 +238,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	const answerReadingStartFrame = countdownEndFrame + answerPreparationDuration;
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'white'}}>
+		<AbsoluteFill>
 			<AbsoluteFill>
 				<Img src={staticFile('images/quiz.png')} />
 				<AbsoluteFill className="quiz_volume quiz_volume_quiz">

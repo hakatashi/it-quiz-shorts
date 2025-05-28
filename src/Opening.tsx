@@ -46,12 +46,12 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 		durationInFrames: 20,
 	});
 
-	const titleDuration = Math.floor(fps * 1.5);
+	const titleDuration = Math.floor(fps * 1.3);
 	const introQuestionImageCopyrightTextLines =
 		introQuestionImageCopyrightText.split('\n');
 
 	return (
-		<AbsoluteFill style={{backgroundColor: 'white'}}>
+		<AbsoluteFill>
 			<Audio src={staticFile('soundeffects/和太鼓でドドン.mp3')} volume={0.7} />
 			<Img src={staticFile('images/opening1.png')} />
 			<Sequence durationInFrames={titleDuration}>
