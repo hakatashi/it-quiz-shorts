@@ -34,6 +34,7 @@ export const itQuizSchema = z.object({
 	clauses: z.array(z.string()),
 	difficulty: z.number().int().min(1).max(5),
 	quizId: z.number().int().min(0),
+	questionSpeechFileName: z.string(),
 	timepoints: z.array(
 		z.object({
 			timeSeconds: z.number(),
@@ -42,6 +43,7 @@ export const itQuizSchema = z.object({
 	),
 	answer: z.string(),
 	alternativeAnswers: z.array(z.string()),
+	answerSpeechFileName: z.string(),
 });
 
 const extractMarkIndex = (markName: string | null | undefined) =>
@@ -151,6 +153,8 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	timepoints,
 	answer,
 	alternativeAnswers,
+	questionSpeechFileName,
+	answerSpeechFileName,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -215,11 +219,6 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
-			<Audio
-				src={staticFile("musics/Santa's_Sleigh_Ride.mp3")}
-				volume={0.2}
-				startFrom={18 * fps}
-			/>
 			<AbsoluteFill>
 				<Img src={staticFile('images/quiz.png')} />
 				<AbsoluteFill className="quiz_volume">
@@ -260,7 +259,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 								'--hidden-ratio': clause.hiddenRatio,
 								'--background-image': `url(${staticFile('images/opening1.png')})`,
 							}}
-							class="quiz_clause"
+							className="quiz_clause"
 							dangerouslySetInnerHTML={{__html: clause.html}}
 						/>
 					))}
@@ -268,7 +267,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 			</Sequence>
 			<Sequence from={quizStartFrame} durationInFrames={quizReadingDuration} name="Quiz Audio">
 				<Audio
-					src={staticFile('speeches/test.mp3')}
+					src={staticFile(`speeches/${questionSpeechFileName}`)}
 					volume={2}
 				/>
 			</Sequence>
@@ -293,7 +292,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 			</Sequence>
 			<Sequence from={answerReadingStartFrame} durationInFrames={60} name="Answer Reading">
 				<Audio
-					src={staticFile('voices/tsumugi/エックスアイズ.wav')}
+					src={staticFile(`speeches/${answerSpeechFileName}`)}
 					volume={2}
 				/>
 				<Audio
