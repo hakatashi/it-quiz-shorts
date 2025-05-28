@@ -6,3 +6,11 @@
   * Licensed under [DOVA-SYNDROME 音源利用ライセンス](https://dova-s.jp/_contents/license/)
 * [Noto Sans Japanese](https://fonts.google.com/noto/specimen/Noto+Sans+JP) by Adobe
   * Licensed under [SIL Open Font License, Version 1.1](https://fonts.google.com/noto/specimen/Noto+Sans+JP/license)
+* [Noto Serif Japanese](https://fonts.google.com/noto/specimen/Noto+Serif+JP) by Adobe
+  * Licensed under [SIL Open Font License, Version 1.1](https://fonts.google.com/noto/specimen/Noto+Serif+JP/license)
+* [Monaspace](https://monaspace.githubnext.com/) by GitHub
+  * Licensed under [SIL Open Font License, Version 1.1](https://github.com/githubnext/monaspace/blob/main/LICENSE)
+* [M+ FONTS](https://mplusfonts.github.io/) by The M+ FONTS Project Authors
+  * Licensed under [SIL Open Font License, Version 1.1](https://github.com/coz-m/MPLUS_FONTS/blob/master/OFL.txt)
+* Sound effects from [効果音ラボ](https://soundeffect-lab.info/)
+  * [License](https://soundeffect-lab.info/faq/)
