@@ -10,7 +10,7 @@ export const RemotionRoot: React.FC = () => {
 			<Composition
 				id="ItQuizComposition"
 				component={ItQuizComposition}
-				durationInFrames={30 * 89.5}
+				durationInFrames={30 * 120}
 				fps={30}
 				width={1080}
 				height={1920}
@@ -21,12 +21,20 @@ export const RemotionRoot: React.FC = () => {
 					voiceId: 'tsumugi',
 					questionSpeechId: 'ja-JP-Neural2-B',
 					introQuestionImageUrl:
-						'https://upload.wikimedia.org/wikipedia/commons/4/41/Roofline_model.png',
-					introQuestion: 'このグラフの名前は？',
+						'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/JetBrains_PyCharm_Product_Logo.svg/2560px-JetBrains_PyCharm_Product_Logo.svg.png',
+					introQuestion: '｢？｣に入る会社は？',
 					introQuestionImageCopyrightText: [
-						'Based on the image “Roofline model.png” on Wikimedia Commons',
-						'Authored by Mewtow and licenced under CC0 1.0 Universal Public Domain Dedication',
+						'Based on the image “JetBrains PyCharm Product Logo.svg” on Wikimedia Commons',
+						'Authored by JetBrains and licenced under Public Domain',
 					].join('\n'),
+					introQuestionImageMask: {
+						imageWidth: 1024,
+						imageHeight: 305,
+						left: 311,
+						top: 232,
+						width: 423,
+						height: 73,
+					},
 					quizzes: [
 						{
 							difficulty: 3,

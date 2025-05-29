@@ -6,6 +6,42 @@ import {sum} from 'lodash-es';
 import {Opening} from './Opening';
 import {Ending} from './Ending';
 
+const quizSchema = z.object({
+	clauses: z.array(z.string()),
+	difficulty: z.number().int().min(1).max(5),
+	quizId: z.number().int().min(0),
+	questionSpeechFileName: z.string(),
+	timepoints: z.array(
+		z.object({
+			timeSeconds: z.number(),
+			markName: z.string(),
+		}),
+	),
+	answer: z.string(),
+	alternativeAnswers: z.array(z.string()),
+	answerSpeechFileName: z.string(),
+	answerImage: z.union([
+		z.object({
+			url: z.string(),
+			copyrightText: z.string(),
+			mask: z.union([
+				z.null(),
+				z.object({
+					imageWidth: z.number(),
+					imageHeight: z.number(),
+					top: z.number(),
+					left: z.number(),
+					width: z.number(),
+					height: z.number(),
+				}),
+			]),
+		}),
+		z.null(),
+	]),
+});
+
+export type Quiz = z.infer<typeof quizSchema>;
+
 export const itQuizCompositionSchema = z.object({
 	volumes: z.number().min(1),
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -14,30 +50,18 @@ export const itQuizCompositionSchema = z.object({
 	introQuestionImageUrl: z.string().nonempty(),
 	introQuestion: z.string().nonempty(),
 	introQuestionImageCopyrightText: z.string().nonempty(),
-	quizzes: z.array(
+	introQuestionImageMask: z.union([
+		z.null(),
 		z.object({
-			clauses: z.array(z.string()),
-			difficulty: z.number().int().min(1).max(5),
-			quizId: z.number().int().min(0),
-			questionSpeechFileName: z.string(),
-			timepoints: z.array(
-				z.object({
-					timeSeconds: z.number(),
-					markName: z.string(),
-				}),
-			),
-			answer: z.string(),
-			alternativeAnswers: z.array(z.string()),
-			answerSpeechFileName: z.string(),
-			answerImage: z.union([
-				z.object({
-					url: z.string(),
-					copyrightText: z.string(),
-				}),
-				z.null(),
-			]),
+			imageWidth: z.number(),
+			imageHeight: z.number(),
+			top: z.number(),
+			left: z.number(),
+			width: z.number(),
+			height: z.number(),
 		}),
-	),
+	]),
+	quizzes: z.array(quizSchema),
 });
 
 export const ItQuizComposition: React.FC<
@@ -51,6 +75,7 @@ export const ItQuizComposition: React.FC<
 	introQuestionImageUrl,
 	introQuestion,
 	introQuestionImageCopyrightText,
+	introQuestionImageMask,
 }) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
@@ -93,6 +118,7 @@ export const ItQuizComposition: React.FC<
 					introQuestionImageUrl={introQuestionImageUrl}
 					introQuestion={introQuestion}
 					introQuestionImageCopyrightText={introQuestionImageCopyrightText}
+					introQuestionImageMask={introQuestionImageMask}
 				/>
 			</Sequence>
 			{quizzes.map((quiz, index) => (

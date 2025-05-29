@@ -26,6 +26,17 @@ export const openingSchema = z.object({
 	introQuestionImageUrl: z.string().nonempty(),
 	introQuestion: z.string().nonempty(),
 	introQuestionImageCopyrightText: z.string(),
+	introQuestionImageMask: z.union([
+		z.null(),
+		z.object({
+			imageWidth: z.number(),
+			imageHeight: z.number(),
+			top: z.number(),
+			left: z.number(),
+			width: z.number(),
+			height: z.number(),
+		}),
+	]),
 });
 
 export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
@@ -36,6 +47,7 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 	introQuestionImageUrl,
 	introQuestion,
 	introQuestionImageCopyrightText,
+	introQuestionImageMask,
 }) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
@@ -49,6 +61,22 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 	const titleDuration = Math.floor(fps * 1.3);
 	const introQuestionImageCopyrightTextLines =
 		introQuestionImageCopyrightText.split('\n');
+
+	const introQuestionImageMaskStyles: React.CSSProperties = {};
+	if (introQuestionImageMask !== null) {
+		const padding = 20;
+		const zoom = Math.min(830 / introQuestionImageMask.imageWidth, 610 / introQuestionImageMask.imageHeight);
+		const offsetX = (830 - introQuestionImageMask.imageWidth * zoom) / 2 + padding;
+		const offsetY = (610 - introQuestionImageMask.imageHeight * zoom) / 2 + padding;
+		introQuestionImageMaskStyles.top = `${introQuestionImageMask.top * zoom + offsetY}px`;
+		introQuestionImageMaskStyles.left = `${introQuestionImageMask.left * zoom + offsetX}px`;
+		introQuestionImageMaskStyles.width = `${introQuestionImageMask.width * zoom}px`;
+		introQuestionImageMaskStyles.height = `${introQuestionImageMask.height * zoom}px`;
+		introQuestionImageMaskStyles.fontSize = `${Math.min(
+			introQuestionImageMask.width,
+			introQuestionImageMask.height,
+		) * zoom * 0.6}px`;
+	}
 
 	return (
 		<AbsoluteFill>
@@ -109,6 +137,9 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 				<AbsoluteFill className="intro_question">
 					<div className="intro_question_image_area">
 						<Img src={introQuestionImageUrl} className="intro_question_image" />
+						{introQuestionImageMask !== null && (
+							<div className="intro_question_image_mask" style={introQuestionImageMaskStyles}>？</div>
+						)}
 					</div>
 					<div className="intro_question_text_area">{introQuestion}</div>
 				</AbsoluteFill>
