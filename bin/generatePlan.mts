@@ -32,7 +32,7 @@ export interface QuizPlan {
 	answer: string;
 	answerReading: string | null;
 	alternativeAnswers: string[];
-	answerImage?: string;
+	image?: string;
 }
 
 export interface Video {

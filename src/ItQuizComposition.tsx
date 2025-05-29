@@ -24,17 +24,6 @@ const quizSchema = z.object({
 		z.object({
 			url: z.string(),
 			copyrightText: z.string(),
-			mask: z.union([
-				z.null(),
-				z.object({
-					imageWidth: z.number(),
-					imageHeight: z.number(),
-					top: z.number(),
-					left: z.number(),
-					width: z.number(),
-					height: z.number(),
-				}),
-			]),
 		}),
 		z.null(),
 	]),

@@ -284,9 +284,16 @@ export const formatQuizToSsml = async (text: string) => {
 
 	const rubyBaseTextLocations: [number, number][] = [];
 	for (const baseText of rubyBaseTexts) {
-		const matches = Array.from(textWithoutRubyAndEmphasis.matchAll(new RegExp(escapeRegExp(baseText), 'g')));
+		const matches = Array.from(
+			textWithoutRubyAndEmphasis.matchAll(
+				new RegExp(escapeRegExp(baseText), 'g'),
+			),
+		);
 		for (const match of matches) {
-			rubyBaseTextLocations.push([match.index ?? 0, match.index + match[0].length]);
+			rubyBaseTextLocations.push([
+				match.index ?? 0,
+				match.index + match[0].length,
+			]);
 		}
 	}
 
@@ -302,10 +309,11 @@ export const formatQuizToSsml = async (text: string) => {
 			prevForm = tokens[index - 1].surface_form;
 		}
 
-		if (rubyBaseTextLocations.some(
-			([start, end]) =>
-				start < tokenOffset && tokenOffset < end,
-		)) {
+		if (
+			rubyBaseTextLocations.some(
+				([start, end]) => start < tokenOffset && tokenOffset < end,
+			)
+		) {
 			clauses[clauses.length - 1] += token.surface_form;
 		} else if (
 			clauses.length === 0 ||

@@ -65,17 +65,23 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 	const introQuestionImageMaskStyles: React.CSSProperties = {};
 	if (introQuestionImageMask !== null) {
 		const padding = 20;
-		const zoom = Math.min(830 / introQuestionImageMask.imageWidth, 610 / introQuestionImageMask.imageHeight);
-		const offsetX = (830 - introQuestionImageMask.imageWidth * zoom) / 2 + padding;
-		const offsetY = (610 - introQuestionImageMask.imageHeight * zoom) / 2 + padding;
+		const zoom = Math.min(
+			830 / introQuestionImageMask.imageWidth,
+			610 / introQuestionImageMask.imageHeight,
+		);
+		const offsetX =
+			(830 - introQuestionImageMask.imageWidth * zoom) / 2 + padding;
+		const offsetY =
+			(610 - introQuestionImageMask.imageHeight * zoom) / 2 + padding;
 		introQuestionImageMaskStyles.top = `${introQuestionImageMask.top * zoom + offsetY}px`;
 		introQuestionImageMaskStyles.left = `${introQuestionImageMask.left * zoom + offsetX}px`;
 		introQuestionImageMaskStyles.width = `${introQuestionImageMask.width * zoom}px`;
 		introQuestionImageMaskStyles.height = `${introQuestionImageMask.height * zoom}px`;
-		introQuestionImageMaskStyles.fontSize = `${Math.min(
-			introQuestionImageMask.width,
-			introQuestionImageMask.height,
-		) * zoom * 0.6}px`;
+		introQuestionImageMaskStyles.fontSize = `${
+			Math.min(introQuestionImageMask.width, introQuestionImageMask.height) *
+			zoom *
+			0.6
+		}px`;
 	}
 
 	return (
@@ -138,7 +144,12 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 					<div className="intro_question_image_area">
 						<Img src={introQuestionImageUrl} className="intro_question_image" />
 						{introQuestionImageMask !== null && (
-							<div className="intro_question_image_mask" style={introQuestionImageMaskStyles}>？</div>
+							<div
+								className="intro_question_image_mask"
+								style={introQuestionImageMaskStyles}
+							>
+								？
+							</div>
 						)}
 					</div>
 					<div className="intro_question_text_area">{introQuestion}</div>

@@ -1,22 +1,30 @@
 import 'dotenv/config';
-import type { RenderMediaOnProgress } from '@remotion/renderer';
+import type {RenderMediaOnProgress} from '@remotion/renderer';
 import yaml from 'js-yaml';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import type {QuizPlan, Video} from './generatePlan.mts';
-import {selectComposition, renderMedia} from '@remotion/renderer';
+import {selectComposition, renderMedia, renderStill} from '@remotion/renderer';
 import {bundle} from '@remotion/bundler';
 import type {itQuizCompositionSchema, Quiz} from '../src/ItQuizComposition.js';
 import {
 	synthesisGoogleToFile,
 	synthesisVoiceVoxToFile,
 } from './lib/synthesis.js';
-import { z } from 'zod';
+import {z} from 'zod';
+import {getCommonsImageInformation, getCopyrightText} from './lib/wikimedia.js';
+import {sum} from 'lodash-es';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const onRenderProgress: RenderMediaOnProgress = ({ renderedFrames, encodedFrames, encodedDoneIn, renderedDoneIn, stitchStage }) => {
+const onRenderProgress: RenderMediaOnProgress = ({
+	renderedFrames,
+	encodedFrames,
+	encodedDoneIn,
+	renderedDoneIn,
+	stitchStage,
+}) => {
 	if (stitchStage === 'encoding') {
 		// First pass, parallel rendering of frames and encoding into video
 		console.log('Encoding...');
@@ -49,6 +57,34 @@ const getSpeakerName = (voiceId: string): string => {
 		default:
 			throw new Error(`Unknown voiceId: ${voiceId}`);
 	}
+};
+
+const parseMaskText = (mask: string | null) => {
+	if (!mask) {
+		return null;
+	}
+
+	const [imageWidth, imageHeight, left, top, width, height] = mask
+		.split(' ')
+		.map(Number);
+	if (
+		imageWidth <= 0 ||
+		imageHeight <= 0 ||
+		top < 0 ||
+		left < 0 ||
+		width <= 0 ||
+		height <= 0
+	) {
+		throw new Error(`Invalid mask dimensions: ${mask}`);
+	}
+	return {
+		imageWidth,
+		imageHeight,
+		top,
+		left,
+		width,
+		height,
+	};
 };
 
 interface QuizInfo {
@@ -108,8 +144,17 @@ interface VideoInfo {
 
 		const voiceSpeakerName = getSpeakerName(video.voiceId);
 
+		const fps = 30;
+
 		const quizzes: Quiz[] = [];
 		const quizInfos: QuizInfo[] = [];
+
+		const introQuestionImageInformation = await getCommonsImageInformation(
+			video.introQuestion.image,
+		);
+		const introQuestionImageCopyrightText = getCopyrightText(
+			introQuestionImageInformation,
+		);
 
 		for (const quiz of video.quizzes) {
 			const questionSpeechFileName = `question-${quiz.quizId}-${video.questionSpeechId}.mp3`;
@@ -129,6 +174,20 @@ interface VideoInfo {
 				answerSpeechFileName,
 			);
 
+			let answerImage = null;
+			if (typeof quiz.image === 'string') {
+				const answerImageInformation = await getCommonsImageInformation(
+					quiz.image,
+				);
+				const answerImageCopyrightText = getCopyrightText(
+					answerImageInformation,
+				);
+				answerImage = {
+					url: answerImageInformation.url,
+					copyrightText: answerImageCopyrightText,
+				};
+			}
+
 			const quizOutput: Quiz = {
 				quizId: quiz.quizId,
 				clauses: questionSynthesisResult.clauses,
@@ -142,7 +201,7 @@ interface VideoInfo {
 				alternativeAnswers: quiz.alternativeAnswers,
 				questionSpeechFileName,
 				answerSpeechFileName,
-				answerImage: null,
+				answerImage,
 			};
 
 			quizzes.push(quizOutput);
@@ -155,6 +214,26 @@ interface VideoInfo {
 			});
 		}
 
+		const quizDurations = quizzes.map((quiz) => {
+			const quizDuration = quiz.timepoints.reduce(
+				(acc, timepoint) => Math.max(acc, timepoint.timeSeconds),
+				0,
+			);
+			return Math.floor(quizDuration * fps) + fps * 6.1;
+		});
+
+		const videoDuration = sum(quizDurations) + 7 * fps;
+		if (videoDuration > 90 * fps) {
+			throw new Error(
+				`Video duration for volume ${video.volume} exceeds 90 seconds: ${videoDuration / fps} seconds.`,
+			);
+		}
+		if (videoDuration < 60 * fps) {
+			throw new Error(
+				`Video duration for volume ${video.volume} is less than 60 seconds: ${videoDuration / fps} seconds.`,
+			);
+		}
+
 		const videoInfo: VideoInfo = {
 			volume: video.volume,
 			date: video.date,
@@ -162,7 +241,9 @@ interface VideoInfo {
 			questionSpeechId: video.questionSpeechId,
 			introQuestion: {
 				image: video.introQuestion.image,
-				text: video.introQuestion.text,
+				text: video.introQuestion.text
+					.replaceAll('「', '｢')
+					.replaceAll('」', '｣'),
 			},
 			quizzes: quizInfos,
 		};
@@ -172,10 +253,10 @@ interface VideoInfo {
 			date: video.date,
 			voiceId: video.voiceId,
 			questionSpeechId: video.questionSpeechId,
-			introQuestionImageUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Roofline_model.png',
+			introQuestionImageUrl: introQuestionImageInformation.url,
 			introQuestion: video.introQuestion.text,
-			introQuestionImageCopyrightText: '',
-			introQuestionImageMask: null,
+			introQuestionImageCopyrightText,
+			introQuestionImageMask: parseMaskText(video.introQuestion.mask),
 			quizzes,
 		};
 
@@ -183,6 +264,21 @@ interface VideoInfo {
 			serveUrl: bundleLocation,
 			id: 'ItQuizComposition',
 			inputProps: compositionProps,
+		});
+
+		console.log(`Rendering thumbnail for volume ${video.volume}...`);
+		await renderStill({
+			composition,
+			serveUrl: bundleLocation,
+			frame: 60,
+			output: path.join(
+				__dirname,
+				'..',
+				'out',
+				`it-quiz-volume-${video.volume}-thumbnail.png`,
+			),
+			inputProps: compositionProps,
+			timeoutInMilliseconds: 5 * 60 * 1000,
 		});
 
 		console.log(`Rendering video for volume ${video.volume}...`);
@@ -194,6 +290,7 @@ interface VideoInfo {
 			inputProps: compositionProps,
 			onProgress: onRenderProgress,
 			timeoutInMilliseconds: 30 * 60 * 1000,
+			frameRange: [0, Math.floor(videoDuration)],
 		});
 
 		await fs.mkdir(path.dirname(outputFilePath), {recursive: true});
