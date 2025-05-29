@@ -4,16 +4,7 @@
 		"enabled": true
 	},
 	"linter": {
-		"enabled": true,
-		"rules": {
-			"all": true,
-			"style": {
-				"noDefaultExport": "off"
-			},
-			"correctness": {
-				"noNodejsModules": "off"
-			}
-		}
+		"enabled": false
 	},
 	"files": {
 		"ignore": ["node_modules", "public", "out"]

@@ -1,10 +1,13 @@
 import {tokenize, type KuromojiToken} from 'kuromojin';
+import {decode as decodeHtmlEntities} from 'html-entities';
 import {v1beta1 as GoogleCloudTextToSpeech} from '@google-cloud/text-to-speech';
 import {protos} from '@google-cloud/text-to-speech';
 import 'dotenv/config';
 import {clamp, escapeRegExp} from 'lodash-es';
 import path from 'node:path';
+import qs from 'node:querystring';
 import fs from 'fs-extra';
+import assert from 'node:assert';
 
 const textToSpeechClient = new GoogleCloudTextToSpeech.TextToSpeechClient();
 
@@ -151,6 +154,15 @@ const postprocessClauses = ({
 				},
 			);
 		}
+
+		if (mode === 'ssml') {
+			if (processedClause === '何と') {
+				processedClause = 'なんと';
+			} else if (processedClause === '何でしょう') {
+				processedClause = 'なんでしょう';
+			}
+		}
+
 		processedClauses.push(processedClause);
 		offset += clause.length;
 	}
@@ -270,9 +282,18 @@ export const formatQuizToSsml = async (text: string) => {
 		}
 	}
 
+	const rubyBaseTextLocations: [number, number][] = [];
+	for (const baseText of rubyBaseTexts) {
+		const matches = Array.from(textWithoutRubyAndEmphasis.matchAll(new RegExp(escapeRegExp(baseText), 'g')));
+		for (const match of matches) {
+			rubyBaseTextLocations.push([match.index ?? 0, match.index + match[0].length]);
+		}
+	}
+
 	const tokens = await tokenize(textWithoutRubyAndEmphasis);
 
 	const clauses: string[] = [];
+	let tokenOffset = 0;
 	for (const [index, token] of tokens.entries()) {
 		let prevPos: string | null = null;
 		let prevForm: string | null = null;
@@ -280,7 +301,13 @@ export const formatQuizToSsml = async (text: string) => {
 			prevPos = tokens[index - 1].pos;
 			prevForm = tokens[index - 1].surface_form;
 		}
-		if (
+
+		if (rubyBaseTextLocations.some(
+			([start, end]) =>
+				start < tokenOffset && tokenOffset < end,
+		)) {
+			clauses[clauses.length - 1] += token.surface_form;
+		} else if (
 			clauses.length === 0 ||
 			token.pos === '記号' ||
 			prevPos === '記号' ||
@@ -295,7 +322,11 @@ export const formatQuizToSsml = async (text: string) => {
 		} else {
 			clauses.push(token.surface_form);
 		}
+
+		tokenOffset += token.surface_form.length;
 	}
+
+	assert(tokenOffset === textWithoutRubyAndEmphasis.length, 'Offset mismatch');
 
 	const htmlClauses = postprocessHtmlClauses({
 		clauses,
@@ -339,13 +370,14 @@ export const formatQuizToSsml = async (text: string) => {
 	return {clauses: htmlClauses, ssml};
 };
 
-export const synthesisToFile = async (text: string, filename: string) => {
+export const synthesisGoogleToFile = async (
+	voiceType: string,
+	text: string,
+	filename: string,
+) => {
 	const {ssml, clauses} = await formatQuizToSsml(text);
 
-	const {data: audioData, timepoints} = await getSpeech(
-		ssml,
-		'ja-JP-Neural2-B',
-	);
+	const {data: audioData, timepoints} = await getSpeech(ssml, voiceType);
 
 	if (timepoints === undefined || timepoints === null) {
 		throw new Error('timepoints is undefined or null');
@@ -365,14 +397,134 @@ export const synthesisToFile = async (text: string, filename: string) => {
 	};
 };
 
-if (require.main === module) {
-	const text =
-		'SSDが寿命を迎えるまでに書き込めるデータの総量をテラバイト単位で表した、SSDの耐久性の指標をアルファベット3文字で何というでしょう？';
-	const filename = 'test_question2.mp3';
+const sanitizeHtmlText = (text: string) => {
+	return decodeHtmlEntities(
+		text
+			.replaceAll(/<rb>(.*?)<\/rb>/g, '')
+			.replaceAll(/<rp>(.*?)<\/rp>/g, '')
+			.replaceAll(/<.+?>/g, ''),
+	);
+};
 
-	synthesisToFile(text, filename)
-		.then((d) =>
-			console.log(`Synthesis completed and saved to ${filename}: `, d),
-		)
-		.catch((error) => console.error('Error during synthesis:', error));
+const voiceVoxApi = async (
+	method: string,
+	path: string,
+	query: Record<string, any> = {},
+	body: any = null,
+) => {
+	const queryString = qs.stringify(query);
+
+	const response = await fetch(`http://127.0.1:50021${path}?${queryString}`, {
+		method,
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		...(body === null ? {} : {body: JSON.stringify(body)}),
+	});
+	if (!response.ok) {
+		const data = await response.text();
+		throw new Error(
+			`HTTP error! status: ${response.status}, response: ${data}`,
+		);
+	}
+	if (response.headers.get('Content-Type') === 'application/json') {
+		return response.json();
+	}
+	if (response.headers.get('Content-Type') === 'audio/wav') {
+		return response.arrayBuffer();
+	}
+	throw new Error(
+		`Unexpected Content-Type: ${response.headers.get('Content-Type')}`,
+	);
+};
+
+export const synthesisVoiceVoxToFile = async (
+	speakerName: string,
+	text: string,
+	filename: string,
+) => {
+	const normalizedText = sanitizeHtmlText(text);
+
+	const speakers = await voiceVoxApi('GET', '/speakers');
+	const speaker = speakers.find(
+		(speaker: {name: string}) => speaker.name === speakerName,
+	);
+
+	if (speaker === -1) {
+		throw new Error(`Speaker with name "${speakerName}" not found`);
+	}
+
+	const style = speaker.styles.find(
+		(style: {name: string}) => style.name === 'ノーマル',
+	);
+	if (style === undefined) {
+		throw new Error(`Style "ノーマル" not found for speaker "${speakerName}"`);
+	}
+
+	const styleId = style.id;
+	if (styleId === undefined) {
+		throw new Error(`Style ID is undefined for speaker "${speakerName}"`);
+	}
+
+	const generatedAudioQuery = await voiceVoxApi('POST', '/audio_query', {
+		text: normalizedText,
+		speaker: styleId,
+	});
+
+	const audioQuery = {
+		...generatedAudioQuery,
+		speedScale: 1.21,
+		pitchScale: 0.0,
+		intonationScale: 1.05,
+		volumeScale: 0.9,
+	};
+
+	const synthesisResult = await voiceVoxApi(
+		'POST',
+		'/synthesis',
+		{
+			speaker: styleId,
+		},
+		audioQuery,
+	);
+
+	const outputDirPath = path.join(__dirname, '../../public/speeches');
+	await fs.ensureDir(outputDirPath);
+
+	const outputFilePath = path.join(outputDirPath, filename);
+	await fs.writeFile(outputFilePath, Buffer.from(synthesisResult));
+
+	return {
+		audioFilePath: outputFilePath,
+		audioQuery,
+		normalizedText,
+	};
+};
+
+if (require.main === module) {
+	const text = [
+		'これは<ruby><rb>何</rb><rp>（</rp><rt>なん</rt><rp>）</rp></ruby>ですか？',
+		'<em>私は</em>春日部つむぎです。',
+		'「1 &lt; 2」は<em><ruby><rb>真</rb><rp>（</rp><rt>しん</rt><rp>）</rp></ruby></em>です。',
+	].join('\n');
+
+	{
+		const filename = 'test_google.mp3';
+
+		synthesisGoogleToFile('ja-JP-Neural2-B', text, filename)
+			.then((d) =>
+				console.log(`Synthesis completed and saved to ${filename}: `, d),
+			)
+			.catch((error) => console.error('Error during synthesis:', error));
+	}
+
+	{
+		const filename = 'test_voicevox.wav';
+
+		synthesisVoiceVoxToFile('春日部つむぎ', text, filename)
+			.then((d) =>
+				console.log(`Synthesis completed and saved to ${filename}: `, d),
+			)
+			.catch((error) => console.error('Error during synthesis:', error));
+	}
 }
