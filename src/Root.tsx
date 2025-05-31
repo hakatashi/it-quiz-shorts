@@ -21,7 +21,7 @@ export const RemotionRoot: React.FC = () => {
 					voiceId: 'tsumugi',
 					questionSpeechId: 'ja-JP-Neural2-B',
 					introQuestionImageUrl:
-						'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/JetBrains_PyCharm_Product_Logo.svg/2560px-JetBrains_PyCharm_Product_Logo.svg.png',
+						'https://upload.wikimedia.org/wikipedia/commons/b/be/Super-resolution_example_closeup.png',
 					introQuestion: '｢？｣に入る会社は？',
 					introQuestionImageCopyrightText: [
 						'Based on the image “JetBrains PyCharm Product Logo.svg” on Wikimedia Commons',
@@ -349,7 +349,7 @@ export const RemotionRoot: React.FC = () => {
 								'Roofline Analysis',
 							],
 							answerImage: {
-								url: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Roofline_model.png',
+								url: 'https://upload.wikimedia.org/wikipedia/commons/b/be/Super-resolution_example_closeup.png',
 								copyrightText: [
 									'Based on the image “Roofline model.png” on Wikimedia Commons',
 									'Authored by Mewtow and licenced under CC0 1.0 Universal Public Domain Dedication',

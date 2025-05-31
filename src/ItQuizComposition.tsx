@@ -130,7 +130,7 @@ export const ItQuizComposition: React.FC<
 						questionSpeechFileName={quiz.questionSpeechFileName}
 						answerSpeechFileName={quiz.answerSpeechFileName}
 						voiceVolume={2.5}
-						questionVolume={1.5}
+						questionVolume={2}
 						answerImage={quiz.answerImage}
 					/>
 				</Sequence>

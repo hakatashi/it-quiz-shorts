@@ -12,7 +12,7 @@ import assert from 'node:assert';
 const textToSpeechClient = new GoogleCloudTextToSpeech.TextToSpeechClient();
 
 const getSpeech = async (ssml: string, voiceType: string) => {
-	const speed = 1.4;
+	const speed = 1.5;
 
 	const [response] = await textToSpeechClient.synthesizeSpeech({
 		input: {

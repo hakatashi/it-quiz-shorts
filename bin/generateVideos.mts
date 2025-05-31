@@ -107,6 +107,7 @@ interface VideoInfo {
 }
 
 (async () => {
+	const now = Date.now();
 	const videosYamlPath = path.join(__dirname, '..', 'data', 'videos.yaml');
 	const videos = yaml.loadAll(
 		await fs.readFile(videosYamlPath, 'utf8'),
@@ -116,13 +117,6 @@ interface VideoInfo {
 	}
 
 	console.log(`Found ${videos.length} videos in ${videosYamlPath}`);
-	console.log(`Bundling Remotion project...`);
-	const bundleLocation = await bundle({
-		entryPoint: path.join(__dirname, '..', 'src', 'index.ts'),
-		onProgress(progress) {
-			console.log(`Bundling progress: ${progress.toFixed(2)}%`);
-		},
-	});
 
 	for (const video of videos) {
 		const outputFilePath = path.join(
@@ -234,6 +228,10 @@ interface VideoInfo {
 			);
 		}
 
+		const normalizedIntroQuestionText = video.introQuestion.text
+			.replaceAll('「', '｢')
+			.replaceAll('」', '｣');
+
 		const videoInfo: VideoInfo = {
 			volume: video.volume,
 			date: video.date,
@@ -241,9 +239,7 @@ interface VideoInfo {
 			questionSpeechId: video.questionSpeechId,
 			introQuestion: {
 				image: video.introQuestion.image,
-				text: video.introQuestion.text
-					.replaceAll('「', '｢')
-					.replaceAll('」', '｣'),
+				text: normalizedIntroQuestionText,
 			},
 			quizzes: quizInfos,
 		};
@@ -254,11 +250,19 @@ interface VideoInfo {
 			voiceId: video.voiceId,
 			questionSpeechId: video.questionSpeechId,
 			introQuestionImageUrl: introQuestionImageInformation.url,
-			introQuestion: video.introQuestion.text,
+			introQuestion: normalizedIntroQuestionText,
 			introQuestionImageCopyrightText,
 			introQuestionImageMask: parseMaskText(video.introQuestion.mask),
 			quizzes,
 		};
+
+		console.log(`Bundling Remotion project...`);
+		const bundleLocation = await bundle({
+			entryPoint: path.join(__dirname, '..', 'src', 'index.ts'),
+			onProgress(progress) {
+				console.log(`Bundling progress: ${progress.toFixed(2)}%`);
+			},
+		});
 
 		const composition = await selectComposition({
 			serveUrl: bundleLocation,
@@ -282,16 +286,33 @@ interface VideoInfo {
 		});
 
 		console.log(`Rendering video for volume ${video.volume}...`);
-		await renderMedia({
-			composition,
-			serveUrl: bundleLocation,
-			codec: 'h264',
-			outputLocation: `out/it-quiz-volume-${video.volume}.mp4`,
-			inputProps: compositionProps,
-			onProgress: onRenderProgress,
-			timeoutInMilliseconds: 30 * 60 * 1000,
-			frameRange: [0, Math.floor(videoDuration)],
-		});
+		let retryCount = 0;
+
+		while (retryCount < 10) {
+			try {
+				await renderMedia({
+					composition,
+					serveUrl: bundleLocation,
+					codec: 'h264',
+					outputLocation: `out/it-quiz-volume-${video.volume}.mp4`,
+					inputProps: compositionProps,
+					onProgress: onRenderProgress,
+					timeoutInMilliseconds: 30 * 60 * 1000,
+					frameRange: [0, Math.floor(videoDuration)],
+				});
+				break;
+			} catch (error) {
+				console.error(`Rendering failed for volume ${video.volume}:`, error);
+				retryCount++;
+				if (retryCount >= 10) {
+					console.error(
+						`Failed to render after 10 attempts for volume ${video.volume}.`,
+					);
+					throw error;
+				}
+				console.log(`Retrying rendering for volume ${video.volume}...`);
+			}
+		}
 
 		await fs.mkdir(path.dirname(outputFilePath), {recursive: true});
 		await fs.writeFile(

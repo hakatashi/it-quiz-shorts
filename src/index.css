@@ -344,7 +344,8 @@ svg.countdown_circle circle {
 }
 
 .answer_image_image_area {
-	flex: 1;
+	flex: 1 1 0;
+	height: 0;
 }
 
 .answer_image_image {
