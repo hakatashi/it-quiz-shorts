@@ -99,6 +99,8 @@ const LICENSE_ALLOWLIST = [
 	'Apache License 2.0',
 	'CC BY-SA 4.0',
 	'CC BY-SA 3.0',
+	'CC BY 4.0',
+	'CC0',
 ];
 
 export const getCopyrightText = ({

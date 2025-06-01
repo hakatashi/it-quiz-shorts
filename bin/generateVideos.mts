@@ -94,7 +94,7 @@ interface QuizInfo {
 	answerSynthesisResult: Awaited<ReturnType<typeof synthesisVoiceVoxToFile>>;
 }
 
-interface VideoInfo {
+export interface VideoInfo {
 	volume: number;
 	date: string;
 	voiceId: string;

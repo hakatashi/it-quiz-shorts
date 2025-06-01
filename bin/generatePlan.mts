@@ -8,6 +8,7 @@ import path from 'node:path';
 import type {Quiz, NormalQuiz} from '../../it-quiz-data/.github/bin/quizzes.js';
 import {last, range} from 'lodash-es';
 import {fileURLToPath} from 'node:url';
+import type {VideoInfo} from './generateVideos.mjs';
 
 const numberOfVideos = Number.parseInt(process.argv[2]);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -55,7 +56,18 @@ const isNormalQuiz = (quiz: Quiz): quiz is NormalQuiz => {
 	return !('removed' in quiz);
 };
 
+const incrementDate = (date: string): string => {
+	const nextDate = new Date(date);
+	nextDate.setDate(nextDate.getDate() + 1);
+	return nextDate.toISOString().split('T')[0];
+};
+
 (async () => {
+	const dataDir = path.join(__dirname, '..', 'data');
+	if (!(await fs.stat(dataDir).catch(() => false))) {
+		await fs.mkdir(dataDir, {recursive: true});
+	}
+
 	const latestRelease = await getJson<{
 		assets: {name: string; browser_download_url: string}[];
 	}>('https://api.github.com/repos/hakatashi/it-quiz/releases/latest');
@@ -69,14 +81,49 @@ const isNormalQuiz = (quiz: Quiz): quiz is NormalQuiz => {
 	const quizzes = await getJson<Quiz[]>(quizJsonUrl);
 	console.log(`Loaded ${quizzes.length} quizzes from ${quizJsonUrl}`);
 
+	const videosDir = path.join(__dirname, '..', 'data', '.videos');
+	if (!(await fs.stat(videosDir).catch(() => false))) {
+		await fs.mkdir(videosDir, {recursive: true});
+	}
+
+	const processedQuizzes = new Set<number>();
+	let lastVolume = 0;
+	let lastDate = '2025-05-31';
+	const pastVideos = await fs.readdir(videosDir);
+	if (pastVideos.length > 0) {
+		for (const file of pastVideos) {
+			if (file.endsWith('.json')) {
+				const videoData = await fs.readFile(path.join(videosDir, file), 'utf8');
+				const video: VideoInfo = JSON.parse(videoData);
+				for (const quiz of video.quizzes) {
+					if (quiz.output.quizId !== undefined) {
+						processedQuizzes.add(quiz.output.quizId);
+					}
+				}
+
+				if (video.volume > lastVolume) {
+					lastVolume = video.volume;
+				}
+
+				if (lastDate.localeCompare(video.date) < 0) {
+					lastDate = video.date;
+				}
+			}
+		}
+		console.log(
+			`Found ${processedQuizzes.size} processed quizzes in past videos.`,
+		);
+	}
+
 	const filteredQuizzes = quizzes
 		.map((quiz, i) => [i, quiz] as [number, Quiz])
 		.filter((quiz): quiz is [number, NormalQuiz] => {
 			return isNormalQuiz(quiz[1]);
-		});
+		})
+		.filter(([quizId]) => !processedQuizzes.has(quizId));
 
-	let volume = 1;
-	let date = '2025-05-31';
+	let volume = lastVolume + 1;
+	let date = incrementDate(lastDate);
 
 	const videos: Video[] = [];
 	for (const _j of range(numberOfVideos)) {
@@ -141,9 +188,7 @@ const isNormalQuiz = (quiz: Quiz): quiz is NormalQuiz => {
 		});
 
 		volume++;
-		date = new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000)
-			.toISOString()
-			.split('T')[0];
+		date = incrementDate(date);
 	}
 
 	let output = '';
@@ -156,11 +201,7 @@ const isNormalQuiz = (quiz: Quiz): quiz is NormalQuiz => {
 		await fs.mkdir(path.join(__dirname, '..', 'data'), {recursive: true});
 	}
 
-	await fs.writeFile(
-		path.join(__dirname, '..', 'data', 'videos.yaml'),
-		output,
-		'utf8',
-	);
+	await fs.appendFile(path.join(dataDir, 'videos.yaml'), output, 'utf8');
 
 	console.log(
 		`Generated ${numberOfVideos} video plans and saved to data/videos.yaml`,

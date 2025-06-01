@@ -310,11 +310,17 @@ export const formatQuizToSsml = async (text: string) => {
 		}
 
 		if (
+			clauses.length > 0 &&
 			rubyBaseTextLocations.some(
 				([start, end]) => start < tokenOffset && tokenOffset < end,
 			)
 		) {
 			clauses[clauses.length - 1] += token.surface_form;
+		} else if (
+			clauses.length > 0 &&
+			clauses[clauses.length - 1].length + token.surface_form.length > 15
+		) {
+			clauses.push(token.surface_form);
 		} else if (
 			clauses.length === 0 ||
 			token.pos === '記号' ||
