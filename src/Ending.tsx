@@ -2,9 +2,13 @@ import {Audio, Img, spring, staticFile, useCurrentFrame} from 'remotion';
 import {AbsoluteFill, useVideoConfig} from 'remotion';
 import {z} from 'zod';
 
-export const endingSchema = z.object({});
+export const endingSchema = z.object({
+	voiceId: z.string().nonempty(),
+});
 
-export const Ending: React.FC<z.infer<typeof endingSchema>> = () => {
+export const Ending: React.FC<z.infer<typeof endingSchema>> = ({
+	voiceId,
+}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
@@ -23,7 +27,7 @@ export const Ending: React.FC<z.infer<typeof endingSchema>> = () => {
 			<Img src={staticFile('images/opening1.png')} />
 			<Audio
 				src={staticFile(
-					'voices/tsumugi/あなたは何問わかった コメント欄で教えてね.wav',
+					`voices/${voiceId}/あなたは何問わかった コメント欄で教えてね.wav`,
 				)}
 				volume={2.5}
 				useWebAudioApi

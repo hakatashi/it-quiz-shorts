@@ -371,12 +371,18 @@ export const formatQuizToSsml = async (text: string) => {
 	let spannedQuestionText = '';
 	let offset = 0;
 
-	for (const component of components) {
+	for (const [componentIndex, component] of components.entries()) {
 		const spannedText = component
 			.map((clause, index) => `${clause}<mark name="c${offset + index}"/>`)
 			.join('');
 		offset += component.length;
 		spannedQuestionText += spannedText;
+		const nextComponent = components[componentIndex + 1];
+		if (component[component.length - 1]?.endsWith('、') && 
+		nextComponent?.[0]?.startsWith('「')
+			) {
+			spannedQuestionText += '<break time="500ms"/>';
+			}
 	}
 
 	const ssml = `<speak>${spannedQuestionText}</speak>`;

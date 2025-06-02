@@ -299,6 +299,7 @@ export interface VideoInfo {
 					onProgress: onRenderProgress,
 					timeoutInMilliseconds: 30 * 60 * 1000,
 					frameRange: [0, Math.floor(videoDuration)],
+					concurrency: 1,
 				});
 				break;
 			} catch (error) {

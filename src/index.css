@@ -55,9 +55,10 @@
 	width: auto !important;
 	height: auto !important;
 	text-align: right;
-	font-size: 20px;
+	font-size: 18px;
 	line-height: 1em;
 	font-family: 'Noto Sans Japanese';
+	font-weight: 500;
 }
 
 .intro_question {
@@ -125,6 +126,7 @@
 	text-align: center;
 	font-size: 180px;
 	font-family: 'Noto Sans Japanese';
+	font-weight: 700;
 	transform-origin: center;
 }
 
@@ -137,6 +139,7 @@
 	height: auto !important;
 	text-align: left;
 	font-family: 'Noto Serif Japanese';
+	font-weight: 700;
 	font-size: 38px;
 	color: #222;
 	z-index: 0;
@@ -180,6 +183,7 @@
 	height: auto !important;
 	text-align: right;
 	font-family: 'Noto Sans Japanese';
+	font-weight: 700;
 	font-size: 38px;
 	color: #222;
 }
@@ -194,15 +198,20 @@
 	line-height: 1.5em;
 	line-break: strict;
 	font-family: 'Noto Sans Japanese';
+	font-weight: 700;
 	font-size: 60px;
 	color: #222;
 }
 
 .quiz_clause {
-	display: inline-block;
+	display: inline;
+	white-space: nowrap;
 	position: relative;
-	line-break: strict;
 	clip-path: inset(0px var(--hidden-ratio) 0px 0px);
+}
+
+.quiz_clause:has(ruby) {
+	display: inline-block;
 }
 
 .quiz_volume {
@@ -248,6 +257,7 @@
 	font-size: 260px;
 	color: #333;
 	font-family: 'Noto Sans Japanese';
+	font-weight: 700;
 
 	-webkit-text-stroke: 10px white;
 	paint-order: stroke fill;
@@ -357,9 +367,10 @@ svg.countdown_circle circle {
 
 .answer_image_text_area {
 	flex: 0 0 auto;
-	font-size: 20px;
+	font-size: 18px;
 	line-height: 1.2em;
 	font-family: 'Noto Sans Japanese';
+	font-weight: 500;
 	text-align: right;
 }
 

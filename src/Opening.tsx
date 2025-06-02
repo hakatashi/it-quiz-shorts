@@ -13,6 +13,10 @@ const getVoiceName = (voiceId: string) => {
 	switch (voiceId) {
 		case 'tsumugi':
 			return '春日部つむぎ';
+		case 'metan':
+			return '四国めたん';
+		case 'zundamon':
+			return 'ずんだもん';
 		default:
 			throw new Error(`Unknown voiceId: ${voiceId}`);
 	}
@@ -90,7 +94,7 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 			<Img src={staticFile('images/opening1.png')} />
 			<Sequence durationInFrames={titleDuration}>
 				<Audio
-					src={staticFile('voices/tsumugi/ITクイズ5問.wav')}
+					src={staticFile(`voices/${voiceId}/ITクイズ5問.wav`)}
 					volume={2.5}
 					useWebAudioApi
 					crossOrigin="anonymous"
@@ -155,7 +159,7 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 					<div className="intro_question_text_area">{introQuestion}</div>
 				</AbsoluteFill>
 				<Audio
-					src={staticFile('voices/tsumugi/全部解けたらあなたもITマスター.wav')}
+					src={staticFile(`voices/${voiceId}/全部解けたらあなたもITマスター.wav`)}
 					volume={2.5}
 					useWebAudioApi
 					crossOrigin="anonymous"

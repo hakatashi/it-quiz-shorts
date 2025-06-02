@@ -120,6 +120,7 @@ export const ItQuizComposition: React.FC<
 					<ItQuiz
 						volumes={volumes}
 						date={date}
+						voiceId={voiceId}
 						quizIndex={index + 1}
 						difficulty={quiz.difficulty}
 						quizId={quiz.quizId}
@@ -136,7 +137,7 @@ export const ItQuizComposition: React.FC<
 				</Sequence>
 			))}
 			<Sequence from={sum(quizDurations) + 3.5 * fps}>
-				<Ending />
+				<Ending voiceId={voiceId} />
 			</Sequence>
 		</AbsoluteFill>
 	);

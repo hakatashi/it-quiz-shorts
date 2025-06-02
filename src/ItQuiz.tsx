@@ -14,6 +14,14 @@ import {z} from 'zod';
 
 loadFont({
 	family: 'Noto Sans Japanese',
+	url: staticFile('fonts/NotoSansJP-Medium.ttf'),
+	weight: '500',
+}).then(() => {
+	console.log('Noto Sans Japanese font loaded');
+});
+
+loadFont({
+	family: 'Noto Sans Japanese',
 	url: staticFile('fonts/NotoSansJP-Bold.ttf'),
 	weight: '700',
 }).then(() => {
@@ -55,6 +63,7 @@ loadFont({
 export const itQuizSchema = z.object({
 	volumes: z.number().min(1),
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+	voiceId: z.string().nonempty(),
 	quizIndex: z.number().int().min(1),
 	clauses: z.array(z.string()),
 	difficulty: z.number().int().min(1).max(5),
@@ -204,6 +213,7 @@ const AnswerImage: React.FC<{
 export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	volumes,
 	date,
+	voiceId,
 	quizIndex,
 	difficulty,
 	quizId,
@@ -300,7 +310,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 				name="Quiz Preparation"
 			>
 				<Audio
-					src={staticFile(`voices/tsumugi/第${quizIndex}問.wav`)}
+					src={staticFile(`voices/${voiceId}/第${quizIndex}問.wav`)}
 					volume={() => voiceVolume}
 					useWebAudioApi
 					crossOrigin="anonymous"
@@ -370,7 +380,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 			</Sequence>
 			<Sequence from={countdownEndFrame} name="Answer Preparation">
 				<Audio
-					src={staticFile('voices/tsumugi/正解は.wav')}
+					src={staticFile(`voices/${voiceId}/正解は.wav`)}
 					volume={() => voiceVolume}
 					useWebAudioApi
 					crossOrigin="anonymous"
