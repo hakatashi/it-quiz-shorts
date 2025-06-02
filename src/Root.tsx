@@ -21,7 +21,7 @@ export const RemotionRoot: React.FC = () => {
 					voiceId: 'tsumugi',
 					questionSpeechId: 'ja-JP-Neural2-B',
 					introQuestionImageUrl:
-						'https://upload.wikimedia.org/wikipedia/commons/b/be/Super-resolution_example_closeup.png',
+						'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/JetBrains_PyCharm_Product_Logo.svg/2560px-JetBrains_PyCharm_Product_Logo.svg.png',
 					introQuestion: '｢？｣に入る会社は？',
 					introQuestionImageCopyrightText: [
 						'Based on the image “JetBrains PyCharm Product Logo.svg” on Wikimedia Commons',
