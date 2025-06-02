@@ -5,7 +5,7 @@ import 'dotenv/config';
 import yaml from 'js-yaml';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type {Quiz, NormalQuiz} from '../../it-quiz-data/.github/bin/quizzes.js';
+import type {Quiz, NormalQuiz} from 'it-quiz-scripts/bin/quizzes.d.ts';
 import {last, range} from 'lodash-es';
 import {fileURLToPath} from 'node:url';
 import type {VideoInfo} from './generateVideos.mjs';
