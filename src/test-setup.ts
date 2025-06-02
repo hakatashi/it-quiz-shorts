@@ -6,6 +6,7 @@ import {vi, beforeEach} from 'vitest';
 let absoluteFillCount = 0;
 let audioCount = 0;
 let imgCount = 0;
+let sequenceCount = 0;
 
 // Mock remotion modules for testing
 vi.mock('remotion', () => ({
@@ -33,7 +34,7 @@ vi.mock('remotion', () => ({
 		const testId = `audio-${++audioCount}`;
 		return React.createElement('audio', {
 			'data-testid': testId,
-			'data-src': src,
+			src,
 			...props,
 		});
 	},
@@ -51,6 +52,24 @@ vi.mock('remotion', () => ({
 			...props,
 		});
 	},
+	Sequence: ({
+		children,
+		durationInFrames,
+		...props
+	}: React.PropsWithChildren<
+		{durationInFrames?: number} & Record<string, unknown>
+	>) => {
+		const testId = `sequence-${++sequenceCount}`;
+		return React.createElement(
+			'div',
+			{
+				'data-testid': testId,
+				'data-duration': durationInFrames,
+				...props,
+			},
+			children,
+		);
+	},
 	staticFile: (path: string) => `/static/${path}`,
 	useCurrentFrame: () => 30,
 	useVideoConfig: () => ({
@@ -60,6 +79,18 @@ vi.mock('remotion', () => ({
 		height: 1920,
 	}),
 	spring: () => 1,
+	interpolate: () => 1,
+	Easing: {
+		out: () => 1,
+		in: () => 1,
+		inOut: () => 1,
+		bezier: () => () => 1,
+	},
+}));
+
+// Mock @remotion/fonts
+vi.mock('@remotion/fonts', () => ({
+	loadFont: vi.fn(() => Promise.resolve()),
 }));
 
 // Reset counters before each test
@@ -67,4 +98,5 @@ beforeEach(() => {
 	absoluteFillCount = 0;
 	audioCount = 0;
 	imgCount = 0;
+	sequenceCount = 0;
 });
