@@ -2,7 +2,7 @@ import {render, screen} from '@testing-library/react';
 import {describe, expect, it} from 'vitest';
 import {Ending} from './Ending';
 
-describe('Ending Component', () => {
+describe('<Ending />', () => {
 	const defaultProps = {
 		voiceId: 'test-voice-id',
 	};
