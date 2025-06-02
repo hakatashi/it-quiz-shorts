@@ -55,14 +55,14 @@ jobs:
           image-directory-path: ./out
 
       - name: Render video
-        run: npx remotion render ItQuizComposition out/ItQuizComposition.mp4
+        run: npx remotion render --frames 0-2700 ItQuizComposition out/ItQuizComposition.mp4
 
       - uses: actions/upload-artifact@v4
         with:
           name: rendered-assets
           include-hidden-files: true
           path: out
-          retention-days: 30
+          retention-days: 7
 
   format:
     runs-on: ubuntu-latest
