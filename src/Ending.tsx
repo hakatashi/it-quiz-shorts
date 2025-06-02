@@ -6,9 +6,7 @@ export const endingSchema = z.object({
 	voiceId: z.string().nonempty(),
 });
 
-export const Ending: React.FC<z.infer<typeof endingSchema>> = ({
-	voiceId,
-}) => {
+export const Ending: React.FC<z.infer<typeof endingSchema>> = ({voiceId}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 

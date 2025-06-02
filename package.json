@@ -29,18 +29,27 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-flat": "4.0.310",
+		"@testing-library/jest-dom": "^6.6.3",
+		"@testing-library/react": "^16.3.0",
+		"@testing-library/user-event": "^14.6.1",
 		"@types/react": "19.0.0",
 		"@types/web": "0.0.166",
+		"@vitejs/plugin-react": "^4.5.0",
 		"eslint": "9.19.0",
+		"jsdom": "^26.1.0",
 		"prettier": "3.3.3",
 		"tsx": "^4.19.4",
-		"typescript": "5.8.2"
+		"typescript": "5.8.2",
+		"vitest": "^3.2.0"
 	},
 	"scripts": {
 		"dev": "remotion studio",
 		"build": "remotion bundle",
 		"upgrade": "remotion upgrade",
-		"lint": "eslint src && tsc"
+		"lint": "eslint src && tsc",
+		"test": "vitest",
+		"test:ui": "vitest --ui",
+		"test:run": "vitest run"
 	},
 	"sideEffects": ["*.css"]
 }

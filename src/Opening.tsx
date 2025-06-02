@@ -159,7 +159,9 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 					<div className="intro_question_text_area">{introQuestion}</div>
 				</AbsoluteFill>
 				<Audio
-					src={staticFile(`voices/${voiceId}/全部解けたらあなたもITマスター.wav`)}
+					src={staticFile(
+						`voices/${voiceId}/全部解けたらあなたもITマスター.wav`,
+					)}
 					volume={2.5}
 					useWebAudioApi
 					crossOrigin="anonymous"

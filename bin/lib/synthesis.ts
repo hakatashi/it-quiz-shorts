@@ -378,11 +378,12 @@ export const formatQuizToSsml = async (text: string) => {
 		offset += component.length;
 		spannedQuestionText += spannedText;
 		const nextComponent = components[componentIndex + 1];
-		if (component[component.length - 1]?.endsWith('、') && 
-		nextComponent?.[0]?.startsWith('「')
-			) {
+		if (
+			component[component.length - 1]?.endsWith('、') &&
+			nextComponent?.[0]?.startsWith('「')
+		) {
 			spannedQuestionText += '<break time="500ms"/>';
-			}
+		}
 	}
 
 	const ssml = `<speak>${spannedQuestionText}</speak>`;
