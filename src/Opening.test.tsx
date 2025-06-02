@@ -33,10 +33,7 @@ describe('<Opening />', () => {
 		render(<Opening {...defaultProps} />);
 		const logoImage = screen.getByTestId('img-title1');
 		expect(logoImage).toBeInTheDocument();
-		expect(logoImage).toHaveAttribute(
-			'src',
-			'/static/images/ITクイズ@2x.png',
-		);
+		expect(logoImage).toHaveAttribute('src', '/static/images/ITクイズ@2x.png');
 	});
 
 	it('renders the voice presenter name', () => {

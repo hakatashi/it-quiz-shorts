@@ -43,7 +43,7 @@ describe('<ItQuizComposition />', () => {
 		expect(backgroundMusic).toBeInTheDocument();
 		expect(backgroundMusic).toHaveAttribute(
 			'src',
-			'/static/musics/Santa\'s_Sleigh_Ride.mp3',
+			"/static/musics/Santa's_Sleigh_Ride.mp3",
 		);
 	});
 });

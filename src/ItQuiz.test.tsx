@@ -35,10 +35,7 @@ describe('<ItQuiz />', () => {
 		render(<ItQuiz {...defaultProps} />);
 		const backgroundImage = screen.getByTestId('img-1');
 		expect(backgroundImage).toBeInTheDocument();
-		expect(backgroundImage).toHaveAttribute(
-			'src',
-			'/static/images/quiz.png',
-		);
+		expect(backgroundImage).toHaveAttribute('src', '/static/images/quiz.png');
 	});
 
 	it('renders quiz content with correct quiz number', () => {
