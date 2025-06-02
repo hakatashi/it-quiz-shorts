@@ -48,10 +48,21 @@ jobs:
       - name: Render thumbnail
         run: npx remotion still --frame 60 ItQuizComposition out/thumbnail_rendered.png
       
-      - uses: reg-viz/reg-actions@v2
+      - name: Run regression tests for thumbnail
+        uses: reg-viz/reg-actions@v2
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           image-directory-path: ./out
+
+      - name: Render video
+        run: npx remotion render
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rendered-assets
+          include-hidden-files: true
+          path: out
+          retention-days: 30
 
   format:
     runs-on: ubuntu-latest
