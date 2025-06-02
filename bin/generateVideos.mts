@@ -107,7 +107,6 @@ export interface VideoInfo {
 }
 
 (async () => {
-	const now = Date.now();
 	const videosYamlPath = path.join(__dirname, '..', 'data', 'videos.yaml');
 	const videos = yaml.loadAll(
 		await fs.readFile(videosYamlPath, 'utf8'),
