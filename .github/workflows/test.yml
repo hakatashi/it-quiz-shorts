@@ -49,7 +49,7 @@ jobs:
         run: npx remotion still --frame 60 ItQuizComposition out/thumbnail_rendered.png
       
       - name: Run regression tests for thumbnail
-        uses: reg-viz/reg-actions@v2
+        uses: reg-viz/reg-actions@v3
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           image-directory-path: ./out
