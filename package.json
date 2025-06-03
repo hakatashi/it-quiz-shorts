@@ -9,7 +9,7 @@
 		"@biomejs/biome": "^1.9.4",
 		"@google-cloud/text-to-speech": "^6.1.0",
 		"@remotion/cli": "4.0.310",
-		"@remotion/fonts": "^4.0.310",
+		"@remotion/fonts": "^4.0.312",
 		"@remotion/tailwind-v4": "4.0.310",
 		"@remotion/zod-types": "4.0.310",
 		"@types/fs-extra": "^11.0.4",
