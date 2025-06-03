@@ -1,6 +1,6 @@
 # it-quiz-shorts
 
-[![image](https://github.com/user-attachments/assets/a47f8f52-fd79-4874-a3b7-9cb16868f504)](https://www.youtube.com/channel/UCmGXjoj98-4jDsR3ebWMP7A)
+[![image](https://github.com/user-attachments/assets/b07683f2-9bcb-4e77-9c81-017b0da5d729)](https://www.youtube.com/channel/UCmGXjoj98-4jDsR3ebWMP7A)
 
 [ITクイズチャンネル](https://lit.link/itquiz)で公開しているITクイズのショート動画を生成するためのコードです。
 
