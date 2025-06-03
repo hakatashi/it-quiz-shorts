@@ -1,5 +1,9 @@
 # it-quiz-shorts
 
+[![image](https://github.com/user-attachments/assets/a47f8f52-fd79-4874-a3b7-9cb16868f504))(https://www.youtube.com/channel/UCmGXjoj98-4jDsR3ebWMP7A)
+
+[ITクイズチャンネル](https://lit.link/itquiz)で公開しているITクイズのショート動画を生成するためのコードです。
+
 ## Licenses
 
 * [Santa's Sleigh Ride](https://dova-s.jp/bgm/play21688.html) by [ISSEI AIR](https://dova-s.jp/_contents/author/profile321.html)
