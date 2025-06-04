@@ -8,10 +8,10 @@
 	"dependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"@google-cloud/text-to-speech": "^6.1.0",
-		"@remotion/cli": "4.0.312",
-		"@remotion/fonts": "^4.0.312",
-		"@remotion/tailwind-v4": "4.0.312",
-		"@remotion/zod-types": "4.0.310",
+		"@remotion/cli": "4.0.313",
+		"@remotion/fonts": "^4.0.313",
+		"@remotion/tailwind-v4": "4.0.313",
+		"@remotion/zod-types": "4.0.313",
 		"@types/fs-extra": "^11.0.4",
 		"@types/js-yaml": "^4.0.9",
 		"@types/lodash-es": "^4.17.12",
@@ -24,7 +24,7 @@
 		"lodash-es": "^4.17.21",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
-		"remotion": "4.0.312",
+		"remotion": "4.0.313",
 		"tailwindcss": "4.1.8",
 		"zod": "3.22.3"
 	},
