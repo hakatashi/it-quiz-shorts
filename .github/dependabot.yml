@@ -9,6 +9,11 @@ updates:
         patterns:
           - '@remotion/*'
           - remotion
+      react:
+        patterns:
+          - react
+          - react-dom
+          - '@types/react'
   - package-ecosystem: github-actions
     directory: '/'
     schedule:
