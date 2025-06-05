@@ -4,6 +4,11 @@ updates:
     directory: '/'
     schedule:
       interval: daily
+    groups:
+      remotion:
+        patterns:
+          - '@remotion/*'
+          - remotion
   - package-ecosystem: github-actions
     directory: '/'
     schedule:
