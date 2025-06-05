@@ -26,7 +26,7 @@
 		"react-dom": "19.0.0",
 		"remotion": "4.0.312",
 		"tailwindcss": "4.1.8",
-		"zod": "3.22.3"
+		"zod": "3.25.51"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-flat": "4.0.313",
