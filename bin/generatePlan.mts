@@ -28,7 +28,7 @@ const getJson = async <T,>(url: string): Promise<T> => {
 
 export interface QuizPlan {
 	difficulty: number;
-	quizId: number;
+	quizId: string;
 	question: string;
 	answer: string;
 	answerReading: string | null;
@@ -86,7 +86,7 @@ const incrementDate = (date: string): string => {
 		await fs.mkdir(videosDir, {recursive: true});
 	}
 
-	const processedQuizzes = new Set<number>();
+	const processedQuizzes = new Set<string>();
 	let lastVolume = 0;
 	let lastDate = '2025-05-31';
 	const pastVideos = await fs.readdir(videosDir);
@@ -120,7 +120,7 @@ const incrementDate = (date: string): string => {
 		.filter((quiz): quiz is [number, NormalQuiz] => {
 			return isNormalQuiz(quiz[1]);
 		})
-		.filter(([quizId]) => !processedQuizzes.has(quizId));
+		.filter(([quizId]) => !processedQuizzes.has(quizId.toString()));
 
 	let volume = lastVolume + 1;
 	let date = incrementDate(lastDate);
@@ -129,7 +129,7 @@ const incrementDate = (date: string): string => {
 	for (const _j of range(numberOfVideos)) {
 		const quizPlans: QuizPlan[] = [];
 
-		const addQuiz = (quiz: NormalQuiz, quizId: number) => {
+		const addQuiz = (quiz: NormalQuiz, quizId: string) => {
 			const alternativeAnswers: string[] = [];
 
 			for (const answer of quiz.alternativeAnswers || []) {
@@ -157,7 +157,7 @@ const incrementDate = (date: string): string => {
 				throw new Error('Not enough quizzes to select from.');
 			}
 			const [quizId, quiz] = lastQuiz;
-			addQuiz(quiz, quizId);
+			addQuiz(quiz, quizId.toString());
 			filteredQuizzes.splice(
 				filteredQuizzes.findIndex((q) => q[0] === quizId),
 				1,
@@ -167,7 +167,7 @@ const incrementDate = (date: string): string => {
 		for (const _i of range(OLD_QUIZ_COUNT)) {
 			const [quizId, quiz] =
 				filteredQuizzes[Math.floor(Math.random() * filteredQuizzes.length)];
-			addQuiz(quiz, quizId);
+			addQuiz(quiz, quizId.toString());
 			filteredQuizzes.splice(
 				filteredQuizzes.findIndex((q) => q[0] === quizId),
 				1,

@@ -16,7 +16,7 @@ describe('<ItQuizComposition />', () => {
 			{
 				clauses: ['Test question clause'],
 				difficulty: 3,
-				quizId: 1,
+				quizId: '1',
 				questionSpeechFileName: 'test-question.wav',
 				timepoints: [
 					{

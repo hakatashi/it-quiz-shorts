@@ -67,7 +67,7 @@ export const itQuizSchema = z.object({
 	quizIndex: z.number().int().min(1),
 	clauses: z.array(z.string()),
 	difficulty: z.number().int().min(1).max(5),
-	quizId: z.number().int().min(0),
+	quizId: z.string().nonempty(),
 	questionSpeechFileName: z.string(),
 	timepoints: z.array(
 		z.object({
