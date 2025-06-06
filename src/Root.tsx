@@ -38,7 +38,7 @@ export const RemotionRoot: React.FC = () => {
 					quizzes: [
 						{
 							difficulty: 3,
-							quizId: 3541,
+							quizId: '3541',
 							questionSpeechFileName: 'test_question1.mp3',
 							answerSpeechFileName: 'test_answer1.wav',
 							clauses: [
@@ -103,7 +103,7 @@ export const RemotionRoot: React.FC = () => {
 						},
 						{
 							difficulty: 4,
-							quizId: 3541,
+							quizId: '3541',
 							questionSpeechFileName: 'test_question2.mp3',
 							answerSpeechFileName: 'test_answer2.wav',
 							clauses: [
@@ -148,7 +148,7 @@ export const RemotionRoot: React.FC = () => {
 						},
 						{
 							difficulty: 4,
-							quizId: 3541,
+							quizId: '3541',
 							questionSpeechFileName: 'test_question3.mp3',
 							answerSpeechFileName: 'test_answer3.wav',
 							clauses: [
@@ -197,7 +197,7 @@ export const RemotionRoot: React.FC = () => {
 						},
 						{
 							difficulty: 2,
-							quizId: 3541,
+							quizId: '3541',
 							questionSpeechFileName: 'test_question4.mp3',
 							answerSpeechFileName: 'test_answer4.wav',
 							clauses: [
@@ -277,7 +277,7 @@ export const RemotionRoot: React.FC = () => {
 						},
 						{
 							difficulty: 5,
-							quizId: 3541,
+							quizId: '3541',
 							questionSpeechFileName: 'test_question5.mp3',
 							answerSpeechFileName: 'test_answer5.wav',
 							clauses: [
