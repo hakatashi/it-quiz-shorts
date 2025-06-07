@@ -15,6 +15,7 @@ import {
 import {z} from 'zod';
 import {getCommonsImageInformation, getCopyrightText} from './lib/wikimedia.js';
 import {sum} from 'lodash-es';
+import {getQuizDuration} from '../src/utils.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -207,13 +208,7 @@ export interface VideoInfo {
 			});
 		}
 
-		const quizDurations = quizzes.map((quiz) => {
-			const quizDuration = quiz.timepoints.reduce(
-				(acc, timepoint) => Math.max(acc, timepoint.timeSeconds),
-				0,
-			);
-			return Math.floor(quizDuration * fps) + fps * 6.1;
-		});
+		const quizDurations = quizzes.map((quiz) => Math.floor(getQuizDuration(quiz) * fps));
 
 		const videoDuration = sum(quizDurations) + 7 * fps;
 		if (videoDuration > 90 * fps) {
