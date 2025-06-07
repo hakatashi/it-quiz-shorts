@@ -235,6 +235,10 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 		(a, b) => extractMarkIndex(a.markName) - extractMarkIndex(b.markName),
 	);
 
+	const formattedQuizId = quizId.startsWith('N')
+		? `${quizId.slice(1)}(時)`
+		: quizId;
+
 	const clauseInformation: ClauseInformation[] = [];
 	let previousMarkIndex = -1;
 	let offset = 0;
@@ -335,7 +339,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 				>
 					{getDifficultyText(difficulty)}
 				</AbsoluteFill>
-				<AbsoluteFill className="quiz_id">No.{quizId}</AbsoluteFill>
+				<AbsoluteFill className="quiz_id">No.{formattedQuizId}</AbsoluteFill>
 				<AbsoluteFill className="quiz_text">
 					{clauseInformation.map((clause, index) => (
 						<span
