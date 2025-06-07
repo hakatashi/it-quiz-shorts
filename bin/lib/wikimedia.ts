@@ -96,9 +96,12 @@ export const getCommonsImageInformation = async (image: string) => {
 
 const LICENSE_ALLOWLIST = [
 	'Public domain',
+	'GPL',
+	'MIT',
 	'Apache License 2.0',
 	'CC BY-SA 4.0',
 	'CC BY-SA 3.0',
+	'CC BY-SA 2.0',
 	'CC BY 4.0',
 	'CC0',
 ];
