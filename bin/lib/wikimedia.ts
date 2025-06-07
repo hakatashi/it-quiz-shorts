@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {fetchWithRetry} from './utils.mjs';
 
 // Return type for getCommonsImageInformation
 export interface CommonsImageInfo {
@@ -61,7 +62,7 @@ export const getCommonsImageInformation = async (
 		url.searchParams.append(key, String(value));
 	});
 
-	const response = await fetch(url.toString());
+	const response = await fetchWithRetry(url.toString());
 	if (!response.ok) {
 		throw new Error(
 			`Failed to fetch image information: ${response.statusText}`,
