@@ -70,7 +70,9 @@ export const ItQuizComposition: React.FC<
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
-	const quizDurations = quizzes.map((quiz) => Math.floor(getQuizDuration(quiz) * fps));
+	const quizDurations = quizzes.map((quiz) =>
+		Math.floor(getQuizDuration(quiz) * fps),
+	);
 
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>

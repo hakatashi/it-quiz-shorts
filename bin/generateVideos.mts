@@ -208,7 +208,9 @@ export interface VideoInfo {
 			});
 		}
 
-		const quizDurations = quizzes.map((quiz) => Math.floor(getQuizDuration(quiz) * fps));
+		const quizDurations = quizzes.map((quiz) =>
+			Math.floor(getQuizDuration(quiz) * fps),
+		);
 
 		const videoDuration = sum(quizDurations) + 7 * fps;
 		if (videoDuration > 90 * fps) {
