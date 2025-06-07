@@ -71,6 +71,7 @@ const incrementDate = (date: string): string => {
 	const latestRelease = await getJson<{
 		assets: {name: string; browser_download_url: string}[];
 	}>('https://api.github.com/repos/hakatashi/it-quiz/releases/latest');
+
 	const quizJsonUrl = latestRelease.assets.find((asset: {name: string}) =>
 		asset.name.match(/it-quiz-v.+\.json/),
 	)?.browser_download_url;
@@ -81,6 +82,16 @@ const incrementDate = (date: string): string => {
 	const quizzes = await getJson<Quiz[]>(quizJsonUrl);
 	console.log(`Loaded ${quizzes.length} quizzes from ${quizJsonUrl}`);
 
+	const newsJsonUrl = latestRelease.assets.find((asset: {name: string}) =>
+		asset.name.match(/news-quiz-v.+\.json/),
+	)?.browser_download_url;
+	if (!newsJsonUrl) {
+		throw new Error('News quiz JSON URL not found in the latest release.');
+	}
+
+	const newsQuizzes = await getJson<Quiz[]>(newsJsonUrl);
+	console.log(`Loaded ${newsQuizzes.length} news quizzes from ${newsJsonUrl}`);
+
 	const videosDir = path.join(__dirname, '..', 'data', '.videos');
 	if (!(await fs.stat(videosDir).catch(() => false))) {
 		await fs.mkdir(videosDir, {recursive: true});
@@ -89,6 +100,7 @@ const incrementDate = (date: string): string => {
 	const processedQuizzes = new Set<string>();
 	let lastVolume = 0;
 	let lastDate = '2025-05-31';
+	let newsQuizThreshold = 330;
 	const pastVideos = await fs.readdir(videosDir);
 	if (pastVideos.length > 0) {
 		for (const file of pastVideos) {
@@ -98,6 +110,12 @@ const incrementDate = (date: string): string => {
 				for (const quiz of video.quizzes) {
 					if (quiz.output.quizId !== undefined) {
 						processedQuizzes.add(quiz.output.quizId);
+					}
+					if (quiz.output.quizId.startsWith('N')) {
+						const newsQuizId = parseInt(quiz.output.quizId.slice(1));
+						if (newsQuizThreshold < newsQuizId) {
+							newsQuizThreshold = newsQuizId;
+						}
 					}
 				}
 
@@ -121,6 +139,12 @@ const incrementDate = (date: string): string => {
 			return isNormalQuiz(quiz[1]);
 		})
 		.filter(([quizId]) => !processedQuizzes.has(quizId.toString()));
+	const filteredNewsQuizzes = newsQuizzes
+		.map((quiz, i) => [i, quiz] as [number, Quiz])
+		.filter((quiz): quiz is [number, NormalQuiz] => {
+			return isNormalQuiz(quiz[1]);
+		})
+		.filter(([quizId]) => quizId > newsQuizThreshold);
 
 	let volume = lastVolume + 1;
 	let date = incrementDate(lastDate);
@@ -152,16 +176,22 @@ const incrementDate = (date: string): string => {
 		};
 
 		for (const _i of range(NEW_QUIZ_COUNT)) {
-			const lastQuiz = last(filteredQuizzes);
-			if (!lastQuiz) {
-				throw new Error('Not enough quizzes to select from.');
+			if (filteredNewsQuizzes.length > 0) {
+				const [quizId, quiz] = filteredNewsQuizzes.shift()!;
+				addQuiz(quiz, `N${quizId}`);
+				continue;
+			} else {
+				const lastQuiz = last(filteredQuizzes);
+				if (!lastQuiz) {
+					throw new Error('Not enough quizzes to select from.');
+				}
+				const [quizId, quiz] = lastQuiz;
+				addQuiz(quiz, quizId.toString());
+				filteredQuizzes.splice(
+					filteredQuizzes.findIndex((q) => q[0] === quizId),
+					1,
+				);
 			}
-			const [quizId, quiz] = lastQuiz;
-			addQuiz(quiz, quizId.toString());
-			filteredQuizzes.splice(
-				filteredQuizzes.findIndex((q) => q[0] === quizId),
-				1,
-			);
 		}
 
 		for (const _i of range(OLD_QUIZ_COUNT)) {
