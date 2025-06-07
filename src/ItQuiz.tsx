@@ -1,5 +1,5 @@
 import {loadFont} from '@remotion/fonts';
-import {range} from 'lodash-es';
+import {clamp, range, sum, sumBy} from 'lodash-es';
 import {
 	Audio,
 	Easing,
@@ -246,26 +246,30 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	for (const timepoint of sortedTimepoints) {
 		const markIndex = extractMarkIndex(timepoint.markName);
 		const timeSeconds = timepoint.timeSeconds ?? 0;
-		const clause = clauses
+		const slicedClauses = clauses
 			.slice(previousMarkIndex + 1, markIndex + 1)
-			.join('')
-			.replaceAll(' ', '\xa0');
-
+			.map((clause) => clause.replaceAll(' ', '\xa0'));
+		const clausesLength = sum(slicedClauses.map((clause) => clause.length));
 		const duration = timeSeconds - offset;
-		let hiddenRatio = 1;
-		if (timestamp > timeSeconds) {
-			hiddenRatio = 0;
-		} else if (timestamp < offset) {
-			hiddenRatio = 1;
-		} else {
-			hiddenRatio = 1 - (timestamp - offset) / duration;
-		}
+		const clausesHiddenRatio = clamp(1 - (timestamp - offset) / duration, 0, 1);
 
-		clauseInformation.push({
-			html: clause,
-			duration,
-			hiddenRatio: `${hiddenRatio * 100}%`,
-		});
+		for (const [clauseIndex, clause] of slicedClauses.entries()) {
+			const offset = sumBy(
+				slicedClauses.slice(clauseIndex + 1),
+				(clause) => clause.length,
+			);
+
+			const rawHiddenRatio =
+				(clausesHiddenRatio - offset / clausesLength) /
+				(clause.length / clausesLength);
+			const hiddenRatio = clamp(rawHiddenRatio, 0, 1);
+
+			clauseInformation.push({
+				html: clause,
+				duration: duration * (clause.length / clausesLength),
+				hiddenRatio: `${hiddenRatio * 100}%`,
+			});
+		}
 
 		offset = timeSeconds;
 		previousMarkIndex = markIndex;

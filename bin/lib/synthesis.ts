@@ -8,6 +8,7 @@ import path from 'node:path';
 import qs from 'node:querystring';
 import fs from 'fs-extra';
 import assert from 'node:assert';
+import {fetchWithRetry} from './utils.mjs';
 
 const textToSpeechClient = new GoogleCloudTextToSpeech.TextToSpeechClient();
 
@@ -317,6 +318,11 @@ export const formatQuizToSsml = async (text: string) => {
 		) {
 			clauses[clauses.length - 1] += token.surface_form;
 		} else if (
+			clauses[clauses.length - 1]?.endsWith('」') ||
+			token.surface_form.startsWith('「')
+		) {
+			clauses.push(token.surface_form);
+		} else if (
 			clauses.length > 0 &&
 			clauses[clauses.length - 1].length + token.surface_form.length > 15
 		) {
@@ -435,13 +441,16 @@ const voiceVoxApi = async (
 ) => {
 	const queryString = qs.stringify(query);
 
-	const response = await fetch(`http://127.0.1:50021${path}?${queryString}`, {
-		method,
-		headers: {
-			'Content-Type': 'application/json',
+	const response = await fetchWithRetry(
+		`http://127.0.1:50021${path}?${queryString}`,
+		{
+			method,
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			...(body === null ? {} : {body: JSON.stringify(body)}),
 		},
-		...(body === null ? {} : {body: JSON.stringify(body)}),
-	});
+	);
 	if (!response.ok) {
 		const data = await response.text();
 		throw new Error(

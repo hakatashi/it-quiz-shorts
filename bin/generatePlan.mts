@@ -9,6 +9,7 @@ import type {Quiz, NormalQuiz} from 'it-quiz-scripts/bin/quizzes.d.ts';
 import {last, range} from 'lodash-es';
 import {fileURLToPath} from 'node:url';
 import type {VideoInfo} from './generateVideos.mjs';
+import {fetchWithRetry} from './lib/utils.mjs';
 
 const numberOfVideos = Number.parseInt(process.argv[2]);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -19,7 +20,7 @@ if (Number.isNaN(numberOfVideos) || numberOfVideos < 1) {
 }
 
 const getJson = async <T,>(url: string): Promise<T> => {
-	const response = await fetch(url);
+	const response = await fetchWithRetry(url);
 	if (!response.ok) {
 		throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
 	}
