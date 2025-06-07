@@ -1,4 +1,49 @@
-export const getCommonsImageInformation = async (image: string) => {
+import {z} from 'zod';
+
+// Return type for getCommonsImageInformation
+export interface CommonsImageInfo {
+	filename: string;
+	url: string;
+	width: number;
+	height: number;
+	license: string;
+	usageTerms: string;
+	artist: string;
+}
+
+// Zod schema for Wikimedia Commons API response
+const ExtMetadataSchema = z.object({
+	UsageTerms: z.object({
+		value: z.string(),
+	}),
+	LicenseShortName: z.object({
+		value: z.string(),
+	}),
+	Artist: z.object({
+		value: z.string(),
+	}),
+});
+
+const ImageInfoSchema = z.object({
+	thumburl: z.string(),
+	thumbwidth: z.number(),
+	thumbheight: z.number(),
+	extmetadata: ExtMetadataSchema,
+});
+
+const PageSchema = z.object({
+	imageinfo: z.array(ImageInfoSchema).min(1),
+});
+
+const WikimediaResponseSchema = z.object({
+	query: z.object({
+		pages: z.record(z.string(), PageSchema),
+	}),
+});
+
+export const getCommonsImageInformation = async (
+	image: string,
+): Promise<CommonsImageInfo> => {
 	const query = {
 		action: 'query',
 		format: 'json',
@@ -23,63 +68,29 @@ export const getCommonsImageInformation = async (image: string) => {
 		);
 	}
 
-	const data = await response.json();
-	const pages = data.query?.pages;
-	if (!pages || typeof pages !== 'object') {
-		throw new Error(
-			'Invalid response format: "pages" not found or not an object',
-		);
+	const rawData = await response.json();
+
+	// Validate the response data with Zod
+	const parseResult = WikimediaResponseSchema.safeParse(rawData);
+	if (!parseResult.success) {
+		throw new Error(`Invalid response format: ${parseResult.error.message}`);
 	}
 
-	const page: any = Object.values(pages)?.[0];
-	const imageInfo = page?.imageinfo?.[0];
-	if (!imageInfo) {
-		throw new Error(
-			'Invalid response format: "imageinfo" not found or not an array',
-		);
+	const data = parseResult.data;
+	const pages = data.query.pages;
+	const page = Object.values(pages)[0];
+
+	if (!page) {
+		throw new Error('No page data found in response');
 	}
 
-	const thumburl = imageInfo.thumburl;
-	if (typeof thumburl !== 'string') {
-		throw new Error(
-			'Invalid response format: "thumburl" not found or not a string',
-		);
-	}
+	const imageInfo = page.imageinfo[0];
+	const {thumburl, thumbwidth, thumbheight, extmetadata} = imageInfo;
+	const {UsageTerms, LicenseShortName, Artist} = extmetadata;
 
-	const thumbwidth = imageInfo.thumbwidth;
-	if (typeof thumbwidth !== 'number') {
-		throw new Error(
-			'Invalid response format: "thumbwidth" not found or not a number',
-		);
-	}
-
-	const thumbheight = imageInfo.thumbheight;
-	if (typeof thumbheight !== 'number') {
-		throw new Error(
-			'Invalid response format: "thumbheight" not found or not a number',
-		);
-	}
-
-	const usageTerms = imageInfo?.extmetadata?.UsageTerms?.value;
-	if (typeof usageTerms !== 'string') {
-		throw new Error(
-			'Invalid response format: "usageTerms" or "license" not found or not a string',
-		);
-	}
-
-	const license = imageInfo?.extmetadata?.LicenseShortName?.value;
-	if (typeof license !== 'string') {
-		throw new Error(
-			'Invalid response format: "license" not found or not a string',
-		);
-	}
-
-	const artist = imageInfo?.extmetadata?.Artist?.value;
-	if (typeof artist !== 'string') {
-		throw new Error(
-			'Invalid response format: "artist" not found or not a string',
-		);
-	}
+	const usageTerms = UsageTerms.value;
+	const license = LicenseShortName.value;
+	const artist = Artist.value;
 
 	const normalizedArtist = artist.replaceAll(/<[^>]+>/g, '');
 
@@ -88,17 +99,20 @@ export const getCommonsImageInformation = async (image: string) => {
 		url: thumburl,
 		width: thumbwidth,
 		height: thumbheight,
-		license: license,
-		usageTerms: usageTerms,
+		license,
+		usageTerms,
 		artist: normalizedArtist,
 	};
 };
 
 const LICENSE_ALLOWLIST = [
 	'Public domain',
+	'GPL',
+	'MIT',
 	'Apache License 2.0',
 	'CC BY-SA 4.0',
 	'CC BY-SA 3.0',
+	'CC BY-SA 2.0',
 	'CC BY 4.0',
 	'CC0',
 ];
@@ -108,12 +122,7 @@ export const getCopyrightText = ({
 	license,
 	usageTerms,
 	artist,
-}: {
-	filename: string;
-	license: string;
-	usageTerms: string;
-	artist: string;
-}) => {
+}: CommonsImageInfo) => {
 	if (!license || !LICENSE_ALLOWLIST.includes(license)) {
 		throw new Error(`Unsupported license: ${license}`);
 	}

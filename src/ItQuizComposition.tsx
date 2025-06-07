@@ -5,6 +5,7 @@ import {z} from 'zod';
 import {sum} from 'lodash-es';
 import {Opening} from './Opening';
 import {Ending} from './Ending';
+import {getQuizDuration} from './utils';
 
 const quizSchema = z.object({
 	clauses: z.array(z.string()),
@@ -69,13 +70,9 @@ export const ItQuizComposition: React.FC<
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
-	const quizDurations = quizzes.map((quiz) => {
-		const quizDuration = quiz.timepoints.reduce(
-			(acc, timepoint) => Math.max(acc, timepoint.timeSeconds),
-			0,
-		);
-		return Math.floor(quizDuration * fps) + fps * 6.1;
-	});
+	const quizDurations = quizzes.map((quiz) =>
+		Math.floor(getQuizDuration(quiz) * fps),
+	);
 
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
