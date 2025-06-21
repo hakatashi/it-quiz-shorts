@@ -10,20 +10,20 @@
 
 .title1 {
 	position: absolute;
-	top: 280px;
+	top: 50px;
 	left: 50%;
 	max-width: initial;
 }
 
 .title2 {
 	position: absolute;
-	top: 550px;
+	top: 700px;
 	left: 50%;
 	max-width: initial;
 }
 
 .title_information {
-	top: 1200px !important;
+	top: 1300px !important;
 	text-align: center;
 	font-size: 40px;
 	font-family: 'Noto Sans Japanese';
@@ -224,7 +224,7 @@
 }
 
 .quiz_volume.quiz_volume_title {
-	top: 1100px !important;
+	top: 1200px !important;
 	width: 480px !important;
 	height: 62px !important;
 	font-size: 42px;
