@@ -15,6 +15,7 @@
 		"@types/fs-extra": "^11.0.4",
 		"@types/js-yaml": "^4.0.9",
 		"@types/lodash-es": "^4.17.12",
+		"dayjs": "^1.11.13",
 		"dotenv": "^16.5.0",
 		"fs-extra": "^11.3.0",
 		"html-entities": "^2.6.0",
@@ -53,5 +54,7 @@
 		"test:ui": "vitest --ui",
 		"test:run": "vitest run"
 	},
-	"sideEffects": ["*.css"]
+	"sideEffects": [
+		"*.css"
+	]
 }
