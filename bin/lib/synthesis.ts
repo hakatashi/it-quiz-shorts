@@ -3,12 +3,13 @@ import {decode as decodeHtmlEntities} from 'html-entities';
 import {v1beta1 as GoogleCloudTextToSpeech} from '@google-cloud/text-to-speech';
 import {protos} from '@google-cloud/text-to-speech';
 import 'dotenv/config';
-import {clamp, escapeRegExp} from 'lodash-es';
+import {clamp, escapeRegExp, matchesProperty} from 'lodash-es';
 import path from 'node:path';
 import qs from 'node:querystring';
 import fs from 'fs-extra';
 import assert from 'node:assert';
 import {fetchWithRetry} from './utils.mjs';
+import dayjs, {Dayjs} from 'dayjs';
 
 const textToSpeechClient = new GoogleCloudTextToSpeech.TextToSpeechClient();
 
@@ -67,6 +68,22 @@ const isMapEqual = <K, V>(map1: Map<K, V>, map2: Map<K, V>) => {
 	return true;
 };
 
+const getTimeReplacements = (time: Dayjs): [string, string][] => {
+	const lastMonth = time.subtract(1, 'month');
+	const nextMonth = time.add(1, 'month');
+	const lastYear = time.subtract(1, 'year');
+	const nextYear = time.add(1, 'year');
+
+	return [
+		[`${lastMonth.year()}年${lastMonth.month() + 1}月`, '先月'],
+		[`${time.year()}年${time.month() + 1}月`, '今月'],
+		[`${nextMonth.year()}年${nextMonth.month() + 1}月`, '来月'],
+		[`${lastYear.year()}年`, '去年'],
+		[`${time.year()}年`, '今年'],
+		[`${nextYear.year()}年`, '来年'],
+	];
+};
+
 const SSML_EMPHASIS_START = '<emphasis level="strong"><prosody pitch="+3st">';
 const SSML_EMPHASIS_END = '</prosody></emphasis>';
 
@@ -77,6 +94,7 @@ const postprocessClauses = ({
 	rubyBaseTextIndexes,
 	rubyBaseTextOccurences,
 	emphasizedRanges,
+	timeReplacements,
 }: {
 	clauses: string[];
 	mode: 'html' | 'ssml';
@@ -84,7 +102,11 @@ const postprocessClauses = ({
 	rubyBaseTextIndexes: Map<string, Map<number, string>>;
 	rubyBaseTextOccurences: Map<string, number>;
 	emphasizedRanges: [number, number][];
+	timeReplacements: [string, string][];
 }) => {
+	const timeReplacementBaseTexts = new Set<string>(
+		timeReplacements.map(([, replacement]) => replacement),
+	);
 	const rubyBaseTextOccurencesInClauses = new Map<string, number>(
 		Array.from(rubyBaseTexts).map((baseText) => [baseText, 0]),
 	);
@@ -138,6 +160,8 @@ const postprocessClauses = ({
 			processedClause = processedClause.replace(
 				new RegExp(escapeRegExp(rubyBaseText), 'g'),
 				(match) => {
+					assert(rubyBaseText === match, 'Ruby base text mismatch');
+
 					const index = increment(
 						rubyBaseTextOccurencesInClauses,
 						rubyBaseText,
@@ -146,12 +170,18 @@ const postprocessClauses = ({
 						.get(rubyBaseText)
 						?.get(index - 1);
 					if (rubyText !== undefined) {
+						// HTML mode
 						if (mode === 'html') {
-							return `<ruby><rb>${match}</rb><rp>（</rp><rt>${rubyText}</rt><rp>）</rp></ruby>`;
+							return `<ruby><rb>${rubyBaseText}</rb><rp>（</rp><rt>${rubyText}</rt><rp>）</rp></ruby>`;
+						}
+
+						// SSML mode
+						if (timeReplacementBaseTexts.has(rubyBaseText)) {
+							return rubyBaseText;
 						}
 						return rubyText;
 					}
-					return match;
+					return rubyBaseText;
 				},
 			);
 		}
@@ -169,6 +199,19 @@ const postprocessClauses = ({
 	}
 
 	if (!isMapEqual(rubyBaseTextOccurences, rubyBaseTextOccurencesInClauses)) {
+		console.log({
+			rubyBaseTextOccurences,
+			rubyBaseTextOccurencesInClauses,
+			mode,
+			processedClauses,
+			rubyBaseTexts: Array.from(rubyBaseTexts),
+			rubyBaseTextIndexes: Array.from(rubyBaseTextIndexes.entries()).map(
+				([baseText, indexes]) => [baseText, Array.from(indexes.entries())],
+			),
+			emphasizedRanges,
+			timeReplacements,
+		});
+
 		throw new Error(
 			`Ruby text occurences mismatch while converting to ${mode}`,
 		);
@@ -197,6 +240,7 @@ const postprocessHtmlClauses = ({
 		rubyBaseTextIndexes,
 		rubyBaseTextOccurences,
 		emphasizedRanges,
+		timeReplacements: [],
 	});
 
 const postprocessSsmlClauses = ({
@@ -205,12 +249,14 @@ const postprocessSsmlClauses = ({
 	rubyBaseTextIndexes,
 	rubyBaseTextOccurences,
 	emphasizedRanges,
+	timeReplacements,
 }: {
 	clauses: string[];
 	rubyBaseTexts: Set<string>;
 	rubyBaseTextIndexes: Map<string, Map<number, string>>;
 	rubyBaseTextOccurences: Map<string, number>;
 	emphasizedRanges: [number, number][];
+	timeReplacements: [string, string][];
 }) =>
 	postprocessClauses({
 		clauses,
@@ -219,10 +265,31 @@ const postprocessSsmlClauses = ({
 		rubyBaseTextIndexes,
 		rubyBaseTextOccurences,
 		emphasizedRanges,
+		timeReplacements,
 	});
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Hard to refactor
-export const formatQuizToSsml = async (text: string) => {
+export const formatQuizToSsml = async (text: string, date: string) => {
+	const time = dayjs(date, 'YYYY-MM-DD');
+	if (!time.isValid()) {
+		throw new Error(`Invalid date format: ${date}`);
+	}
+
+	const timeReplacements = getTimeReplacements(time);
+	const timeReplacementsRegex = new RegExp(
+		timeReplacements
+			.map(([replacement]) => escapeRegExp(replacement))
+			.join('|'),
+		'g',
+	);
+	const timeReplacementsMap = new Map<string, string>(timeReplacements);
+
+	text = text.replaceAll(
+		timeReplacementsRegex,
+		(match) =>
+			`<ruby><rb>${timeReplacementsMap.get(match)}</rb><rp>(</rp><rt>${match}</rt><rp>)</rp></ruby>`,
+	);
+
 	const rubyBaseTexts = new Set<string>(
 		Array.from(text.matchAll(/<rb>(.+?)<\/rb>/g)).map((match) => match[1]),
 	);
@@ -361,6 +428,7 @@ export const formatQuizToSsml = async (text: string) => {
 		rubyBaseTextIndexes,
 		rubyBaseTextOccurences,
 		emphasizedRanges,
+		timeReplacements,
 	});
 
 	const components: string[][] = [];
@@ -401,8 +469,9 @@ export const synthesisGoogleToFile = async (
 	voiceType: string,
 	text: string,
 	filename: string,
+	date: string,
 ) => {
-	const {ssml, clauses} = await formatQuizToSsml(text);
+	const {ssml, clauses} = await formatQuizToSsml(text, date);
 
 	const {data: audioData, timepoints} = await getSpeech(ssml, voiceType);
 
@@ -420,6 +489,7 @@ export const synthesisGoogleToFile = async (
 	return {
 		audioFilePath: outputFilePath,
 		clauses,
+		ssml,
 		timepoints,
 	};
 };
@@ -534,14 +604,19 @@ export const synthesisVoiceVoxToFile = async (
 if (require.main === module) {
 	const text = [
 		'これは<ruby><rb>何</rb><rp>（</rp><rt>なん</rt><rp>）</rp></ruby>ですか？',
+		'2025年2月から2025年4月までの期間、そして2025年1月から2025年3月までの期間。',
+		'2026年の<ruby><rb>春</rb><rp>（</rp><rt>はる</rt><rp>）</rp></ruby>に',
+		'<ruby><rb>何</rb><rp>（</rp><rt>なに</rt><rp>）</rp></ruby>が',
+		'<ruby><rb>起</rb><rp>（</rp><rt>おこ</rt><rp>）</rp></ruby>りますか？',
+		'2027年はどうですか？',
 		'<em>私は</em>春日部つむぎです。',
 		'「1 &lt; 2」は<em><ruby><rb>真</rb><rp>（</rp><rt>しん</rt><rp>）</rp></ruby></em>です。',
-	].join('\n');
+	].join('');
 
 	{
 		const filename = 'test_google.mp3';
 
-		synthesisGoogleToFile('ja-JP-Neural2-B', text, filename)
+		synthesisGoogleToFile('ja-JP-Neural2-B', text, filename, '2025-03-31')
 			.then((d) =>
 				console.log(`Synthesis completed and saved to ${filename}: `, d),
 			)
