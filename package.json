@@ -54,7 +54,5 @@
 		"test:ui": "vitest --ui",
 		"test:run": "vitest run"
 	},
-	"sideEffects": [
-		"*.css"
-	]
+	"sideEffects": ["*.css"]
 }
