@@ -78,7 +78,7 @@ const getTimeReplacements = (time: Dayjs): [string, string][] => {
 		[`${lastMonth.year()}年${lastMonth.month() + 1}月`, '先月'],
 		[`${time.year()}年${time.month() + 1}月`, '今月'],
 		[`${nextMonth.year()}年${nextMonth.month() + 1}月`, '来月'],
-		[`${lastYear.year()}年`, '去年'],
+		[`${lastYear.year()}年`, '昨年'],
 		[`${time.year()}年`, '今年'],
 		[`${nextYear.year()}年`, '来年'],
 	];
