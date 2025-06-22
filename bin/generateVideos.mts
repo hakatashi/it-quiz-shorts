@@ -266,15 +266,23 @@ export interface VideoInfo {
 			inputProps: compositionProps,
 		});
 
+		console.log('Making sure output directory exists...');
+		const outputDir = path.join(
+			__dirname,
+			'..',
+			'out',
+			...(isDraftMode ? ['drafts'] : []),
+		);
+		await fs.mkdir(outputDir, {recursive: true});
+		console.log(`Output directory: ${outputDir}`);
+
 		console.log(`Rendering thumbnail for volume ${video.volume}...`);
 		await renderStill({
 			composition,
 			serveUrl: bundleLocation,
 			frame: 60,
 			output: path.join(
-				__dirname,
-				'..',
-				'out',
+				outputDir,
 				`it-quiz-volume-${video.volume}-thumbnail.png`,
 			),
 			inputProps: compositionProps,
@@ -290,7 +298,9 @@ export interface VideoInfo {
 					composition,
 					serveUrl: bundleLocation,
 					codec: 'h264',
-					outputLocation: `out/it-quiz-volume-${video.volume}.mp4`,
+					outputLocation: isDraftMode
+						? `out/drafts/it-quiz-volume-${video.volume}.mp4`
+						: `out/it-quiz-volume-${video.volume}.mp4`,
 					inputProps: compositionProps,
 					onProgress: onRenderProgress,
 					timeoutInMilliseconds: 30 * 60 * 1000,
