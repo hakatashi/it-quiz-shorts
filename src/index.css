@@ -210,6 +210,10 @@
 	clip-path: inset(0px var(--hidden-ratio) 0px 0px);
 }
 
+.quiz_clause em {
+	font-style: normal;
+}
+
 .quiz_clause:has(ruby) {
 	display: inline-block;
 }
