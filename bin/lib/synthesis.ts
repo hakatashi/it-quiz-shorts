@@ -456,7 +456,7 @@ export const formatQuizToSsml = async (text: string, date: string) => {
 			component[component.length - 1]?.endsWith('、') &&
 			nextComponent?.[0]?.startsWith('「')
 		) {
-			spannedQuestionText += '<break time="500ms"/>';
+			spannedQuestionText += '<break time="400ms"/>';
 		}
 	}
 
