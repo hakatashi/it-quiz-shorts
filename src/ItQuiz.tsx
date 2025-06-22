@@ -87,6 +87,7 @@ export const itQuizSchema = z.object({
 		}),
 		z.null(),
 	]),
+	fontSize: z.number(),
 });
 
 const extractMarkIndex = (markName: string | null | undefined) =>
@@ -226,6 +227,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	voiceVolume = 2.5,
 	questionVolume = 1.5,
 	answerImage,
+	fontSize,
 }) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
@@ -344,7 +346,12 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 					{getDifficultyText(difficulty)}
 				</AbsoluteFill>
 				<AbsoluteFill className="quiz_id">No.{formattedQuizId}</AbsoluteFill>
-				<AbsoluteFill className="quiz_text">
+				<AbsoluteFill
+					className="quiz_text"
+					style={{
+						fontSize: `${fontSize * 60}px`,
+					}}
+				>
 					{clauseInformation.map((clause, index) => (
 						<span
 							key={index}

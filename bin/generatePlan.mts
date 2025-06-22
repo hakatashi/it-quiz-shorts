@@ -36,6 +36,7 @@ export interface QuizPlan {
 	answerReading: string | null;
 	alternativeAnswers: string[];
 	image?: string;
+	fontSize?: number;
 }
 
 export interface Video {

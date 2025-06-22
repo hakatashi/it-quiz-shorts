@@ -28,6 +28,7 @@ const quizSchema = z.object({
 		}),
 		z.null(),
 	]),
+	fontSize: z.number().optional(),
 });
 
 export type Quiz = z.infer<typeof quizSchema>;
@@ -130,6 +131,7 @@ export const ItQuizComposition: React.FC<
 						voiceVolume={2.5}
 						questionVolume={2}
 						answerImage={quiz.answerImage}
+						fontSize={quiz.fontSize ?? 1}
 					/>
 				</Sequence>
 			))}

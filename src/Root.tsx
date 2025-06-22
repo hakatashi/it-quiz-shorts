@@ -145,6 +145,7 @@ export const RemotionRoot: React.FC = () => {
 							answer: 'TBW',
 							alternativeAnswers: ['Total Bytes Written'],
 							answerImage: null,
+							fontSize: 0.5,
 						},
 						{
 							difficulty: 4,
