@@ -7,7 +7,7 @@ export const getQuizDuration = (quiz: Quiz) => {
 	);
 	let specialSeconds = 0;
 	if (quiz.quizId === '748') {
-		specialSeconds = 2;
+		specialSeconds = 3;
 	}
 	if (quiz.quizId === '3219') {
 		specialSeconds = 2;

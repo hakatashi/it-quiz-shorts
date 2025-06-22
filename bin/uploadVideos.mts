@@ -26,7 +26,17 @@ interface LocalVideo {
 interface YouTubeVideoItem {
 	snippet?: {
 		title?: string | null;
+		resourceId?: {
+			videoId?: string | null;
+		};
 	};
+}
+
+interface YouTubeVideoDetails {
+	videoId: string;
+	volume: number;
+	title: string;
+	isScheduled: boolean;
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -155,12 +165,12 @@ const createYouTubeClient = async () => {
 };
 
 /**
- * Fetch recent videos from YouTube and return the maximum number
+ * Fetch recent videos from YouTube and return video details
  * Includes all videos (public, private, unlisted, scheduled)
  */
-const getLatestVideoNumber = async (
+const getYouTubeVideos = async (
 	youtube: ReturnType<typeof google.youtube>,
-): Promise<number> => {
+): Promise<{maxNumber: number; videoDetails: YouTubeVideoDetails[]}> => {
 	console.log(
 		'Fetching latest video information from YouTube (including private/scheduled videos)...',
 	);
@@ -202,23 +212,56 @@ const getLatestVideoNumber = async (
 	} while (nextPageToken && pageCount < maxPages);
 
 	let maxNumber = 0;
+	const videoDetails: YouTubeVideoDetails[] = [];
 	console.log(
 		`Found ${allVideos.length} total videos on YouTube (including private/scheduled)`,
 	);
 
+	// Get video IDs to check their status
+	const videoIds: string[] = [];
 	for (const video of allVideos) {
 		const title = video.snippet?.title || '';
+		const videoId = video.snippet?.resourceId?.videoId;
+		
 		// Extract "#number" format from title
 		const match = title.match(/#(\d+)/);
-		if (match) {
+		if (match && videoId) {
 			const number = parseInt(match[1], 10);
 			console.log(`Video found: "${title}" -> #${number}`);
 			maxNumber = Math.max(maxNumber, number);
+			videoIds.push(videoId);
+			
+			videoDetails.push({
+				videoId,
+				volume: number,
+				title,
+				isScheduled: false, // Will be updated after checking video status
+			});
+		}
+	}
+
+	// Check video status to identify scheduled videos
+	if (videoIds.length > 0) {
+		const videoResponse = await youtube.videos.list({
+			part: ['status'],
+			id: videoIds,
+		});
+
+		const videoStatusMap = new Map<string, boolean>();
+		for (const video of videoResponse.data.items || []) {
+			if (video.id && video.status?.publishAt) {
+				videoStatusMap.set(video.id, true); // Scheduled
+			}
+		}
+
+		// Update isScheduled flag
+		for (const detail of videoDetails) {
+			detail.isScheduled = videoStatusMap.get(detail.videoId) || false;
 		}
 	}
 
 	console.log(`Maximum number found on YouTube: #${maxNumber}`);
-	return maxNumber;
+	return {maxNumber, videoDetails};
 };
 
 /**
@@ -309,25 +352,10 @@ const normalizeQuizText = (text: string): string => {
 };
 
 /**
- * Upload video to YouTube as YouTube Shorts with scheduled publishing
+ * Generate video metadata (title, description, tags) for YouTube upload
  */
-const uploadVideo = async (
-	youtube: ReturnType<typeof google.youtube>,
-	videoPath: string,
-	thumbnailPath: string,
-	volume: number,
-	metadata: VideoInfo,
-	dryRun: boolean = false,
-): Promise<void> => {
-	if (dryRun) {
-		console.log(`[DRY RUN] Would upload YouTube Shorts video #${volume}...`);
-	} else {
-		console.log(`Uploading YouTube Shorts video #${volume}...`);
-	}
-
+const generateVideoMetadata = (volume: number, metadata: VideoInfo) => {
 	const scheduledDate = calculateScheduledDate(metadata);
-	const scheduledPublishTime = scheduledDate.toISOString();
-
 	const japaneseDate = getJapaneseDateString(scheduledDate);
 	const quizDescriptions = metadata.quizzes
 		.map(
@@ -347,10 +375,52 @@ const uploadVideo = async (
 		ITクイズチャンネル
 		https://lit.link/itquiz
 		IT系の早押しクイズのショート動画を毎日配信中！
-		問題不備などの連絡はコメント欄か作者のX (https://x.com/hakatashi) までお願いします！
+		問題不備などの連絡はコメント欄か作者のX (@hakatashi) までお願いします！
 
 		#shorts #ITクイズ #早押しクイズ #プログラミング #コンピューター #インターネット
 	`;
+
+	const tags = [
+		'ITクイズ',
+		'早押しクイズ',
+		'プログラミング',
+		'コンピューター',
+		'インターネット',
+		'技術',
+		'IT',
+		'Shorts',
+		'YouTube Shorts',
+	];
+
+	return {
+		title,
+		description,
+		tags,
+		scheduledPublishTime: scheduledDate.toISOString(),
+	};
+};
+
+/**
+ * Upload video to YouTube as YouTube Shorts with scheduled publishing
+ */
+const uploadVideo = async (
+	youtube: ReturnType<typeof google.youtube>,
+	videoPath: string,
+	thumbnailPath: string,
+	volume: number,
+	metadata: VideoInfo,
+	dryRun: boolean = false,
+): Promise<void> => {
+	if (dryRun) {
+		console.log(`[DRY RUN] Would upload YouTube Shorts video #${volume}...`);
+	} else {
+		console.log(`Uploading YouTube Shorts video #${volume}...`);
+	}
+
+	const {title, description, tags, scheduledPublishTime} = generateVideoMetadata(
+		volume,
+		metadata,
+	);
 
 	console.log(`Video metadata:`);
 	console.log(`  Title: ${title}`);
@@ -376,17 +446,7 @@ const uploadVideo = async (
 			snippet: {
 				title,
 				description,
-				tags: [
-					'ITクイズ',
-					'早押しクイズ',
-					'プログラミング',
-					'コンピューター',
-					'インターネット',
-					'技術',
-					'IT',
-					'Shorts',
-					'YouTube Shorts',
-				],
+				tags,
 				categoryId: '27',
 				defaultLanguage: 'ja',
 				defaultAudioLanguage: 'ja',
@@ -451,6 +511,61 @@ const uploadVideo = async (
 };
 
 /**
+ * Update existing scheduled video's metadata
+ */
+const updateScheduledVideo = async (
+	youtube: ReturnType<typeof google.youtube>,
+	videoId: string,
+	volume: number,
+	metadata: VideoInfo,
+	dryRun: boolean = false,
+): Promise<void> => {
+	if (dryRun) {
+		console.log(`[DRY RUN] Would update scheduled YouTube Shorts video #${volume}...`);
+	} else {
+		console.log(`Updating scheduled YouTube Shorts video #${volume}...`);
+	}
+
+	const {title, description, tags, scheduledPublishTime} = generateVideoMetadata(
+		volume,
+		metadata,
+	);
+
+	console.log(`Video metadata for update:`);
+	console.log(`  Title: ${title}`);
+	console.log('  Description:');
+	console.log(description.split('\n').map((line) => `    ${line}`).join('\n'));
+	console.log(`  Scheduled publish time: ${scheduledPublishTime}`);
+
+	if (dryRun) {
+		return;
+	}
+
+	// Update video metadata
+	await youtube.videos.update({
+		part: ['snippet', 'status'],
+		requestBody: {
+			id: videoId,
+			snippet: {
+				title,
+				description,
+				tags,
+				categoryId: '27',
+				defaultLanguage: 'ja',
+				defaultAudioLanguage: 'ja',
+			},
+			status: {
+				privacyStatus: 'private',
+				selfDeclaredMadeForKids: false,
+				publishAt: scheduledPublishTime,
+			},
+		},
+	});
+
+	console.log(`YouTube Shorts video #${volume} metadata updated successfully`);
+};
+
+/**
  * Main process
  */
 const main = async () => {
@@ -463,21 +578,37 @@ const main = async () => {
 
 		const youtube = await createYouTubeClient();
 
-		const latestNumber = await getLatestVideoNumber(youtube);
+		const {maxNumber: latestNumber, videoDetails} = await getYouTubeVideos(youtube);
 
 		const localVideos = await getLocalVideos();
 
+		// Separate videos into new uploads and scheduled video updates
 		const videosToUpload = localVideos.filter(
 			(video) => video.volume > latestNumber,
 		);
-		if (videosToUpload.length === 0) {
-			console.log('No new YouTube Shorts videos to upload.');
+		
+		const scheduledVideosToUpdate = localVideos.filter(video => {
+			const existingVideo = videoDetails.find(v => v.volume === video.volume);
+			return existingVideo && existingVideo.isScheduled;
+		});
+
+		if (videosToUpload.length === 0 && scheduledVideosToUpdate.length === 0) {
+			console.log('No new YouTube Shorts videos to upload or update.');
 			return;
 		}
 
-		console.log(
-			`YouTube Shorts videos to upload: ${videosToUpload.map((v) => `#${v.volume}`).join(', ')}`,
-		);
+		if (videosToUpload.length > 0) {
+			console.log(
+				`YouTube Shorts videos to upload: ${videosToUpload.map((v) => `#${v.volume}`).join(', ')}`,
+			);
+		}
+		
+		if (scheduledVideosToUpdate.length > 0) {
+			console.log(
+				`Scheduled YouTube Shorts videos to update: ${scheduledVideosToUpdate.map((v) => `#${v.volume}`).join(', ')}`,
+			);
+		}
+		// Upload new videos
 		for (const video of videosToUpload) {
 			const metadata = await loadVideoMetadata(video.volume);
 
@@ -496,7 +627,29 @@ const main = async () => {
 			);
 		}
 
-		console.log('All YouTube Shorts uploads completed successfully!');
+		// Update scheduled videos
+		for (const video of scheduledVideosToUpdate) {
+			const metadata = await loadVideoMetadata(video.volume);
+			const existingVideo = videoDetails.find(v => v.volume === video.volume);
+			
+			if (existingVideo) {
+				await updateScheduledVideo(
+					youtube,
+					existingVideo.videoId,
+					video.volume,
+					metadata,
+					isDryRun,
+				);
+
+				// Wait to avoid API rate limits
+				await new Promise((resolve) =>
+					setTimeout(resolve, isDryRun ? 500 : 2000),
+				);
+			}
+		}
+
+		console.log(`All YouTube Shorts processing completed successfully! (${videosToUpload.length} uploaded, ${scheduledVideosToUpdate.length} updated)`);
+
 	} catch (error) {
 		console.error(
 			'Error occurred during YouTube Shorts upload process:',
