@@ -3,7 +3,7 @@ import {decode as decodeHtmlEntities} from 'html-entities';
 import {v1beta1 as GoogleCloudTextToSpeech} from '@google-cloud/text-to-speech';
 import {protos} from '@google-cloud/text-to-speech';
 import 'dotenv/config';
-import {clamp, escapeRegExp, matchesProperty} from 'lodash-es';
+import {clamp, escapeRegExp} from 'lodash-es';
 import path from 'node:path';
 import qs from 'node:querystring';
 import fs from 'fs-extra';
