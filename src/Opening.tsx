@@ -94,13 +94,13 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 			<Img src={staticFile('images/opening1.png')} />
 			<Sequence durationInFrames={titleDuration}>
 				<Audio
-					src={staticFile(`voices/${voiceId}/ITクイズ5問.wav`)}
+					src={staticFile(`voices/${voiceId}/今日のITクイズ.wav`)}
 					volume={2.5}
 					useWebAudioApi
 					crossOrigin="anonymous"
 				/>
 				<Img
-					src={staticFile('images/ITクイズ@2x.png')}
+					src={staticFile('images/今日のITクイズ@2x.png')}
 					className="title1"
 					style={{
 						transform: `translateX(-50%) scale(calc(${titleScale} / 2))`,

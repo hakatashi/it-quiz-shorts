@@ -8,3 +8,7 @@ out
 data
 public/speeches
 google_application_credentials*.json
+
+# OAuth2 tokens and credentials
+oauth2-token.json
+oauth2-credentials.json

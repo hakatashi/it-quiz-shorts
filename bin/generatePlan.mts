@@ -12,10 +12,11 @@ import type {VideoInfo} from './generateVideos.mjs';
 import {fetchWithRetry} from './lib/utils.mjs';
 
 const numberOfVideos = Number.parseInt(process.argv[2]);
+const voiceId = process.argv[3];
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-if (Number.isNaN(numberOfVideos) || numberOfVideos < 1) {
-	console.error('Usage: node generatePlan.js <number_of_videos>');
+if (Number.isNaN(numberOfVideos) || numberOfVideos < 1 || !voiceId) {
+	console.error('Usage: node generatePlan.js <number_of_videos> <voiceId>');
 	process.exit(1);
 }
 
@@ -35,6 +36,7 @@ export interface QuizPlan {
 	answerReading: string | null;
 	alternativeAnswers: string[];
 	image?: string;
+	fontSize?: number;
 }
 
 export interface Video {
@@ -208,7 +210,7 @@ const incrementDate = (date: string): string => {
 		videos.push({
 			volume,
 			date,
-			voiceId: 'tsumugi',
+			voiceId,
 			questionSpeechId: 'ja-JP-Neural2-B',
 			introQuestion: {
 				image: 'image.png',

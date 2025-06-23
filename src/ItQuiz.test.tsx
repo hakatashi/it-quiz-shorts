@@ -24,6 +24,7 @@ describe('<ItQuiz />', () => {
 		voiceVolume: 1.0,
 		questionVolume: 1.0,
 		answerImage: null,
+		fontSize: 1.0,
 	};
 
 	it('renders without crashing', () => {

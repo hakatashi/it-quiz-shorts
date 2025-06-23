@@ -108,6 +108,13 @@ export interface VideoInfo {
 }
 
 (async () => {
+	const isDraftMode = process.argv.includes('--draft');
+	if (isDraftMode) {
+		console.log('Running in draft mode.');
+	} else {
+		console.log('Running in production mode.');
+	}
+
 	const videosYamlPath = path.join(__dirname, '..', 'data', 'videos.yaml');
 	const videos = yaml.loadAll(
 		await fs.readFile(videosYamlPath, 'utf8'),
@@ -159,6 +166,7 @@ export interface VideoInfo {
 				video.questionSpeechId,
 				quiz.question,
 				questionSpeechFileName,
+				video.date,
 			);
 
 			console.log(`Synthesis answer for quiz ${quiz.quizId}...`);
@@ -196,6 +204,7 @@ export interface VideoInfo {
 				questionSpeechFileName,
 				answerSpeechFileName,
 				answerImage,
+				...(quiz.fontSize ? {fontSize: quiz.fontSize} : {}),
 			};
 
 			quizzes.push(quizOutput);
@@ -266,15 +275,23 @@ export interface VideoInfo {
 			inputProps: compositionProps,
 		});
 
+		console.log('Making sure output directory exists...');
+		const outputDir = path.join(
+			__dirname,
+			'..',
+			'out',
+			...(isDraftMode ? ['drafts'] : []),
+		);
+		await fs.mkdir(outputDir, {recursive: true});
+		console.log(`Output directory: ${outputDir}`);
+
 		console.log(`Rendering thumbnail for volume ${video.volume}...`);
 		await renderStill({
 			composition,
 			serveUrl: bundleLocation,
 			frame: 60,
 			output: path.join(
-				__dirname,
-				'..',
-				'out',
+				outputDir,
 				`it-quiz-volume-${video.volume}-thumbnail.png`,
 			),
 			inputProps: compositionProps,
@@ -290,12 +307,14 @@ export interface VideoInfo {
 					composition,
 					serveUrl: bundleLocation,
 					codec: 'h264',
-					outputLocation: `out/it-quiz-volume-${video.volume}.mp4`,
+					outputLocation: isDraftMode
+						? `out/drafts/it-quiz-volume-${video.volume}.mp4`
+						: `out/it-quiz-volume-${video.volume}.mp4`,
 					inputProps: compositionProps,
 					onProgress: onRenderProgress,
 					timeoutInMilliseconds: 30 * 60 * 1000,
 					frameRange: [0, Math.floor(videoDuration)],
-					concurrency: 1,
+					concurrency: isDraftMode ? 8 : 1,
 				});
 				break;
 			} catch (error) {
