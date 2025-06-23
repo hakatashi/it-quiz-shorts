@@ -69,6 +69,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -79,8 +81,31 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run formatting
-        run: npm run format
+      - name: Check if formatting is needed
+        id: format-check
+        run: |
+          # Run biome format and check if any files were changed
+          npx biome format --write .
+          if git diff --quiet; then
+            echo "formatting_needed=false" >> $GITHUB_OUTPUT
+          else
+            echo "formatting_needed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push formatting changes
+        if: steps.format-check.outputs.formatting_needed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Auto-format code with biome"
+          git push
+
+      - name: Fail if formatting was needed
+        if: steps.format-check.outputs.formatting_needed == 'true'
+        run: |
+          echo "Code was not properly formatted. Formatting has been applied and committed."
+          exit 1
 
   lint:
     runs-on: ubuntu-latest
