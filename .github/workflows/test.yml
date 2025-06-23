@@ -64,6 +64,9 @@ jobs:
           retention-days: 7
 
   format:
+    permissions:
+      contents: write
+
     runs-on: ubuntu-latest
 
     steps:
