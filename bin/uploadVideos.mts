@@ -41,6 +41,18 @@ interface YouTubeVideoDetails {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+/**
+ * Append uploaded video title to data/titles.txt
+ */
+const appendTitleToFile = async (title: string) => {
+	const titlesFilePath = path.join(__dirname, '..', 'data', 'titles.txt');
+	try {
+		await fs.appendFile(titlesFilePath, `${title}\n`, 'utf-8');
+	} catch (error) {
+		console.error('Failed to append title to titles.txt:', error);
+	}
+};
+
 const isDryRun = process.argv.includes('--dry-run');
 
 if (isDryRun) {
@@ -97,6 +109,7 @@ const getNewToken = async (
 	const authUrl = oAuth2Client.generateAuthUrl({
 		access_type: 'offline',
 		scope: [
+			'https://www.googleapis.com/auth/youtube',
 			'https://www.googleapis.com/auth/youtube.upload',
 			'https://www.googleapis.com/auth/youtube.readonly',
 		],
@@ -465,10 +478,12 @@ const uploadVideo = async (
 	const videoId = videoResponse.data.id;
 	if (!videoId) {
 		throw new Error('Video upload failed: Could not get videoId');
-	}
-	console.log(
+	}	console.log(
 		`YouTube Shorts video #${volume} upload completed (ID: ${videoId})`,
 	);
+
+	// Append title to titles.txt
+	await appendTitleToFile(title);
 
 	// Upload thumbnail
 	try {
@@ -508,6 +523,9 @@ const uploadVideo = async (
 	} catch (playlistError) {
 		console.error(`Failed to add video #${volume} to playlist:`, playlistError);
 	}
+
+	// Append title to titles.txt
+	await appendTitleToFile(title);
 };
 
 /**
