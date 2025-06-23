@@ -5,12 +5,10 @@ export const getQuizDuration = (quiz: Quiz) => {
 		(acc, timepoint) => Math.max(acc, timepoint.timeSeconds),
 		0,
 	);
-	let specialSeconds = 0;
-	if (quiz.quizId === '748') {
-		specialSeconds = 3;
-	}
-	if (quiz.quizId === '3219') {
-		specialSeconds = 2;
-	}
+	const specialSecondsMap: Record<string, number> = {
+		'748': 3,
+		'3219': 2,
+	};
+	const specialSeconds = specialSecondsMap[quiz.quizId] || 0;
 	return quizDuration + 6.1 + specialSeconds;
 };
