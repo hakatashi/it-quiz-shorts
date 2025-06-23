@@ -39,8 +39,20 @@ jobs:
             echo "formatting_needed=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Commit and push formatting changes
+      - name: Check last commit message
+        id: commit-check
         if: steps.format-check.outputs.formatting_needed == 'true'
+        run: |
+          LAST_COMMIT_MSG=$(git log -1 --pretty=format:'%s')
+          if [ "$LAST_COMMIT_MSG" = "Auto-format code with biome" ]; then
+            echo "should_commit=false" >> $GITHUB_OUTPUT
+            echo "Last commit was already an auto-format commit. Skipping to prevent infinite loop."
+          else
+            echo "should_commit=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push formatting changes
+        if: steps.format-check.outputs.formatting_needed == 'true' && steps.commit-check.outputs.should_commit == 'true'
         run: |
           git config --local user.email "hakatasiloving@gmail.com"
           git config --local user.name "Koki Takahashi"
@@ -49,7 +61,7 @@ jobs:
           git push
 
       - name: Fail if formatting was needed
-        if: steps.format-check.outputs.formatting_needed == 'true'
+        if: steps.format-check.outputs.formatting_needed == 'true' && steps.commit-check.outputs.should_commit == 'true'
         run: |
           echo "Code was not properly formatted. Formatting has been applied and committed."
           exit 1
