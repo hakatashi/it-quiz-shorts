@@ -235,7 +235,7 @@ const getYouTubeVideos = async (
 	for (const video of allVideos) {
 		const title = video.snippet?.title || '';
 		const videoId = video.snippet?.resourceId?.videoId;
-		
+
 		// Extract "#number" format from title
 		const match = title.match(/#(\d+)/);
 		if (match && videoId) {
@@ -243,7 +243,7 @@ const getYouTubeVideos = async (
 			console.log(`Video found: "${title}" -> #${number}`);
 			maxNumber = Math.max(maxNumber, number);
 			videoIds.push(videoId);
-			
+
 			videoDetails.push({
 				videoId,
 				volume: number,
@@ -430,10 +430,8 @@ const uploadVideo = async (
 		console.log(`Uploading YouTube Shorts video #${volume}...`);
 	}
 
-	const {title, description, tags, scheduledPublishTime} = generateVideoMetadata(
-		volume,
-		metadata,
-	);
+	const {title, description, tags, scheduledPublishTime} =
+		generateVideoMetadata(volume, metadata);
 
 	console.log(`Video metadata:`);
 	console.log(`  Title: ${title}`);
@@ -478,7 +476,8 @@ const uploadVideo = async (
 	const videoId = videoResponse.data.id;
 	if (!videoId) {
 		throw new Error('Video upload failed: Could not get videoId');
-	}	console.log(
+	}
+	console.log(
 		`YouTube Shorts video #${volume} upload completed (ID: ${videoId})`,
 	);
 
@@ -539,20 +538,25 @@ const updateScheduledVideo = async (
 	dryRun: boolean = false,
 ): Promise<void> => {
 	if (dryRun) {
-		console.log(`[DRY RUN] Would update scheduled YouTube Shorts video #${volume}...`);
+		console.log(
+			`[DRY RUN] Would update scheduled YouTube Shorts video #${volume}...`,
+		);
 	} else {
 		console.log(`Updating scheduled YouTube Shorts video #${volume}...`);
 	}
 
-	const {title, description, tags, scheduledPublishTime} = generateVideoMetadata(
-		volume,
-		metadata,
-	);
+	const {title, description, tags, scheduledPublishTime} =
+		generateVideoMetadata(volume, metadata);
 
 	console.log(`Video metadata for update:`);
 	console.log(`  Title: ${title}`);
 	console.log('  Description:');
-	console.log(description.split('\n').map((line) => `    ${line}`).join('\n'));
+	console.log(
+		description
+			.split('\n')
+			.map((line) => `    ${line}`)
+			.join('\n'),
+	);
 	console.log(`  Scheduled publish time: ${scheduledPublishTime}`);
 
 	if (dryRun) {
@@ -596,7 +600,8 @@ const main = async () => {
 
 		const youtube = await createYouTubeClient();
 
-		const {maxNumber: latestNumber, videoDetails} = await getYouTubeVideos(youtube);
+		const {maxNumber: latestNumber, videoDetails} =
+			await getYouTubeVideos(youtube);
 
 		const localVideos = await getLocalVideos();
 
@@ -604,9 +609,9 @@ const main = async () => {
 		const videosToUpload = localVideos.filter(
 			(video) => video.volume > latestNumber,
 		);
-		
-		const scheduledVideosToUpdate = localVideos.filter(video => {
-			const existingVideo = videoDetails.find(v => v.volume === video.volume);
+
+		const scheduledVideosToUpdate = localVideos.filter((video) => {
+			const existingVideo = videoDetails.find((v) => v.volume === video.volume);
 			return existingVideo && existingVideo.isScheduled;
 		});
 
@@ -620,7 +625,7 @@ const main = async () => {
 				`YouTube Shorts videos to upload: ${videosToUpload.map((v) => `#${v.volume}`).join(', ')}`,
 			);
 		}
-		
+
 		if (scheduledVideosToUpdate.length > 0) {
 			console.log(
 				`Scheduled YouTube Shorts videos to update: ${scheduledVideosToUpdate.map((v) => `#${v.volume}`).join(', ')}`,
@@ -648,8 +653,8 @@ const main = async () => {
 		// Update scheduled videos
 		for (const video of scheduledVideosToUpdate) {
 			const metadata = await loadVideoMetadata(video.volume);
-			const existingVideo = videoDetails.find(v => v.volume === video.volume);
-			
+			const existingVideo = videoDetails.find((v) => v.volume === video.volume);
+
 			if (existingVideo) {
 				await updateScheduledVideo(
 					youtube,
@@ -666,8 +671,9 @@ const main = async () => {
 			}
 		}
 
-		console.log(`All YouTube Shorts processing completed successfully! (${videosToUpload.length} uploaded, ${scheduledVideosToUpdate.length} updated)`);
-
+		console.log(
+			`All YouTube Shorts processing completed successfully! (${videosToUpload.length} uploaded, ${scheduledVideosToUpdate.length} updated)`,
+		);
 	} catch (error) {
 		console.error(
 			'Error occurred during YouTube Shorts upload process:',
