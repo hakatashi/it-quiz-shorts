@@ -7,62 +7,6 @@ on:
       - main
 
 jobs:
-  unit_test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check compilation errors on TypeScript files
-        run: npx tsc --noEmit
-
-      - name: Run tests
-        run: npm run test:run
-
-  render_test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Render thumbnail
-        run: npx remotion still --frame 60 ItQuizComposition out/thumbnail_rendered.png
-      
-      - name: Run regression tests for thumbnail
-        uses: reg-viz/reg-actions@v3
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-          image-directory-path: ./out
-
-      - name: Render video
-        run: npx remotion render --frames 0-2700 ItQuizComposition out/ItQuizComposition.mp4
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ItQuizComposition
-          path: out/ItQuizComposition.mp4
-          retention-days: 7
-
   format:
     permissions:
       contents: write
@@ -98,8 +42,8 @@ jobs:
       - name: Commit and push formatting changes
         if: steps.format-check.outputs.formatting_needed == 'true'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "hakatasiloving@gmail.com"
+          git config --local user.name "Koki Takahashi"
           git add .
           git commit -m "Auto-format code with biome"
           git push
@@ -110,7 +54,69 @@ jobs:
           echo "Code was not properly formatted. Formatting has been applied and committed."
           exit 1
 
+  unit_test:
+    needs: format
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check compilation errors on TypeScript files
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm run test:run
+
+  render_test:
+    needs: format
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Render thumbnail
+        run: npx remotion still --frame 60 ItQuizComposition out/thumbnail_rendered.png
+      
+      - name: Run regression tests for thumbnail
+        uses: reg-viz/reg-actions@v3
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          image-directory-path: ./out
+
+      - name: Render video
+        run: npx remotion render --frames 0-2700 ItQuizComposition out/ItQuizComposition.mp4
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ItQuizComposition
+          path: out/ItQuizComposition.mp4
+          retention-days: 7
+
   lint:
+    needs: format
+
     runs-on: ubuntu-latest
 
     steps:
