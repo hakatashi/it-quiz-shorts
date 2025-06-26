@@ -9,7 +9,7 @@ import type {Credentials} from 'google-auth-library';
 import type {VideoInfo} from './generateVideos.mjs';
 import {stripIndents} from 'common-tags';
 import {GaxiosError} from 'gaxios';
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc.js';
 import timezone from 'dayjs/plugin/timezone.js';
 
