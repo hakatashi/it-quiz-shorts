@@ -39,7 +39,7 @@
 		"@testing-library/user-event": "^14.6.1",
 		"@types/react": "19.1.8",
 		"@types/web": "0.0.241",
-		"@vitejs/plugin-react": "^4.5.2",
+		"@vitejs/plugin-react": "^4.6.0",
 		"eslint": "9.29.0",
 		"jsdom": "^26.1.0",
 		"prettier": "3.5.3",
