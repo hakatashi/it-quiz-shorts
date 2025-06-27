@@ -5,7 +5,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import readline from 'node:readline';
 import type {Credentials} from 'google-auth-library';
-import "dotenv/config";
+import 'dotenv/config';
 import type {VideoInfo} from './generateVideos.mjs';
 import {stripIndents} from 'common-tags';
 import {GaxiosError} from 'gaxios';
