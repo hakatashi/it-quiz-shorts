@@ -19,7 +19,7 @@
 		"dayjs": "^1.11.13",
 		"dotenv": "^16.5.0",
 		"fs-extra": "^11.3.0",
-		"googleapis": "^149.0.0",
+		"googleapis": "^150.0.1",
 		"html-entities": "^2.6.0",
 		"it-quiz-scripts": "https://gitpkg.vercel.app/hakatashi/it-quiz/.github?1.12.3",
 		"js-yaml": "^4.1.0",
