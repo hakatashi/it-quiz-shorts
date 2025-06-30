@@ -17,7 +17,7 @@
 		"@types/lodash-es": "^4.17.12",
 		"common-tags": "^1.8.2",
 		"dayjs": "^1.11.13",
-		"dotenv": "^16.6.0",
+		"dotenv": "^17.0.0",
 		"fs-extra": "^11.3.0",
 		"googleapis": "^150.0.1",
 		"html-entities": "^2.6.0",
