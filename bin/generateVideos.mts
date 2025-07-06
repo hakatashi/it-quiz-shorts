@@ -55,6 +55,8 @@ const getSpeakerName = (voiceId: string): string => {
 			return '四国めたん';
 		case 'zundamon':
 			return 'ずんだもん';
+		case 'himari':
+			return '冥鳴ひまり';
 		default:
 			throw new Error(`Unknown voiceId: ${voiceId}`);
 	}

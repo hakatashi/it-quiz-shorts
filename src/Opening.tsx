@@ -8,6 +8,7 @@ import {
 } from 'remotion';
 import {AbsoluteFill, useVideoConfig} from 'remotion';
 import {z} from 'zod';
+import {getVoiceVolume} from './utils';
 
 const getVoiceName = (voiceId: string) => {
 	switch (voiceId) {
@@ -17,6 +18,8 @@ const getVoiceName = (voiceId: string) => {
 			return '四国めたん';
 		case 'zundamon':
 			return 'ずんだもん';
+		case 'himari':
+			return '冥鳴ひまり';
 		default:
 			throw new Error(`Unknown voiceId: ${voiceId}`);
 	}
@@ -88,6 +91,8 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 		}px`;
 	}
 
+	const voiceVolume = getVoiceVolume(voiceId);
+
 	return (
 		<AbsoluteFill>
 			<Audio src={staticFile('soundeffects/和太鼓でドドン.mp3')} volume={0.7} />
@@ -95,7 +100,7 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 			<Sequence durationInFrames={titleDuration}>
 				<Audio
 					src={staticFile(`voices/${voiceId}/今日のITクイズ.wav`)}
-					volume={2.5}
+					volume={voiceVolume}
 					useWebAudioApi
 					crossOrigin="anonymous"
 				/>
@@ -162,7 +167,7 @@ export const Opening: React.FC<z.infer<typeof openingSchema>> = ({
 					src={staticFile(
 						`voices/${voiceId}/全部解けたらあなたもITマスター.wav`,
 					)}
-					volume={2.5}
+					volume={voiceVolume}
 					useWebAudioApi
 					crossOrigin="anonymous"
 				/>
