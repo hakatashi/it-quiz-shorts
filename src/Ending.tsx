@@ -28,7 +28,7 @@ export const Ending: React.FC<z.infer<typeof endingSchema>> = ({voiceId}) => {
 				src={staticFile(
 					`voices/${voiceId}/あなたは何問わかった コメント欄で教えてね.wav`,
 				)}
-				volume={getVoiceVolume(voiceId)}
+				volume={() => getVoiceVolume(voiceId)}
 				useWebAudioApi
 				crossOrigin="anonymous"
 			/>
