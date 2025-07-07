@@ -1,7 +1,7 @@
 import {Audio, Img, spring, staticFile, useCurrentFrame} from 'remotion';
 import {AbsoluteFill, useVideoConfig} from 'remotion';
 import {z} from 'zod';
-import { getVoiceVolume } from './utils';
+import {getVoiceVolume} from './utils';
 
 export const endingSchema = z.object({
 	voiceId: z.string().nonempty(),
