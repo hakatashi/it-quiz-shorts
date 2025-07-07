@@ -1,6 +1,7 @@
 import {Audio, Img, spring, staticFile, useCurrentFrame} from 'remotion';
 import {AbsoluteFill, useVideoConfig} from 'remotion';
 import {z} from 'zod';
+import {getVoiceVolume} from './utils';
 
 export const endingSchema = z.object({
 	voiceId: z.string().nonempty(),
@@ -27,7 +28,7 @@ export const Ending: React.FC<z.infer<typeof endingSchema>> = ({voiceId}) => {
 				src={staticFile(
 					`voices/${voiceId}/あなたは何問わかった コメント欄で教えてね.wav`,
 				)}
-				volume={2.5}
+				volume={() => getVoiceVolume(voiceId)}
 				useWebAudioApi
 				crossOrigin="anonymous"
 			/>

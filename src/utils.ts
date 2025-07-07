@@ -12,3 +12,12 @@ export const getQuizDuration = (quiz: Quiz) => {
 	const specialSeconds = specialSecondsMap[quiz.quizId] || 0;
 	return quizDuration + 6.1 + specialSeconds;
 };
+
+export const getVoiceVolume = (voiceId: string): number => {
+	switch (voiceId) {
+		case 'himari':
+			return 4;
+		default:
+			return 2.5;
+	}
+};

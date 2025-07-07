@@ -5,7 +5,7 @@ import {z} from 'zod';
 import {sum} from 'lodash-es';
 import {Opening} from './Opening';
 import {Ending} from './Ending';
-import {getQuizDuration} from './utils';
+import {getQuizDuration, getVoiceVolume} from './utils';
 
 const quizSchema = z.object({
 	clauses: z.array(z.string()),
@@ -128,7 +128,7 @@ export const ItQuizComposition: React.FC<
 						alternativeAnswers={quiz.alternativeAnswers}
 						questionSpeechFileName={quiz.questionSpeechFileName}
 						answerSpeechFileName={quiz.answerSpeechFileName}
-						voiceVolume={2.5}
+						voiceVolume={getVoiceVolume(voiceId)}
 						questionVolume={2}
 						answerImage={quiz.answerImage}
 						fontSize={quiz.fontSize ?? 1}
