@@ -7,10 +7,10 @@
 	"private": true,
 	"dependencies": {
 		"@google-cloud/text-to-speech": "^6.1.0",
-		"@remotion/cli": "4.0.322",
+		"@remotion/cli": "4.0.323",
 		"@remotion/fonts": "^4.0.323",
-		"@remotion/tailwind-v4": "4.0.322",
-		"@remotion/zod-types": "4.0.322",
+		"@remotion/tailwind-v4": "4.0.323",
+		"@remotion/zod-types": "4.0.323",
 		"@types/common-tags": "^1.8.4",
 		"@types/fs-extra": "^11.0.4",
 		"@types/js-yaml": "^4.0.9",
