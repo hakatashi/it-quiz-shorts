@@ -17,6 +17,8 @@ export const getVoiceVolume = (voiceId: string): number => {
 	switch (voiceId) {
 		case 'himari':
 			return 4;
+		case 'whitecul':
+			return 4.5;
 		default:
 			return 2.5;
 	}
