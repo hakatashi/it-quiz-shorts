@@ -261,7 +261,7 @@ const getYouTubeVideos = async (
 		const batchSize = 50;
 		for (let i = 0; i < videoIds.length; i += batchSize) {
 			const batch = videoIds.slice(i, i + batchSize);
-			
+
 			const videoResponse = await youtube.videos.list({
 				part: ['status'],
 				id: batch,
