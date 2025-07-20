@@ -255,15 +255,22 @@ const getYouTubeVideos = async (
 
 	// Check video status to identify scheduled videos
 	if (videoIds.length > 0) {
-		const videoResponse = await youtube.videos.list({
-			part: ['status'],
-			id: videoIds,
-		});
-
 		const videoStatusMap = new Map<string, boolean>();
-		for (const video of videoResponse.data.items || []) {
-			if (video.id && video.status?.publishAt) {
-				videoStatusMap.set(video.id, true); // Scheduled
+
+		// Process video IDs in batches of 50 (YouTube API limit)
+		const batchSize = 50;
+		for (let i = 0; i < videoIds.length; i += batchSize) {
+			const batch = videoIds.slice(i, i + batchSize);
+
+			const videoResponse = await youtube.videos.list({
+				part: ['status'],
+				id: batch,
+			});
+
+			for (const video of videoResponse.data.items || []) {
+				if (video.id && video.status?.publishAt) {
+					videoStatusMap.set(video.id, true); // Scheduled
+				}
 			}
 		}
 
