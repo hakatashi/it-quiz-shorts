@@ -17,7 +17,7 @@
 		"@types/lodash-es": "^4.17.12",
 		"common-tags": "^1.8.2",
 		"dayjs": "^1.11.13",
-		"dotenv": "^17.2.0",
+		"dotenv": "^17.2.1",
 		"fs-extra": "^11.3.0",
 		"google-auth-library": "^10.1.0",
 		"googleapis": "^154.0.0",
