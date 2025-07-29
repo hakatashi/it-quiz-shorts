@@ -35,7 +35,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.1.2",
 		"@remotion/eslint-config-flat": "4.0.327",
-		"@testing-library/jest-dom": "^6.6.3",
+		"@testing-library/jest-dom": "^6.6.4",
 		"@testing-library/react": "^16.3.0",
 		"@testing-library/user-event": "^14.6.1",
 		"@types/react": "19.1.9",
