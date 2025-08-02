@@ -1,14 +1,6 @@
 import {loadFont} from '@remotion/fonts';
 import {clamp, range, sum, sumBy} from 'lodash-es';
-import {
-	Audio,
-	Easing,
-	Img,
-	interpolate,
-	Sequence,
-	spring,
-	staticFile,
-} from 'remotion';
+import {Audio, Img, Sequence, spring, staticFile} from 'remotion';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 import {z} from 'zod';
 
@@ -298,15 +290,6 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 	const countdownEndFrame = countdownStartFrame + countdownDuration;
 	const answerReadingStartFrame = countdownEndFrame + answerPreparationDuration;
 
-	const difficultyAnimationRatio = interpolate(
-		frame,
-		[quizStartFrame, quizStartFrame + fps * 0.8, countdownStartFrame],
-		[0, 1, 1],
-		{
-			easing: Easing.out(Easing.exp),
-		},
-	);
-
 	return (
 		<AbsoluteFill>
 			<AbsoluteFill>
@@ -336,13 +319,7 @@ export const ItQuiz: React.FC<z.infer<typeof itQuizSchema>> = ({
 				</AbsoluteFill>
 			</Sequence>
 			<Sequence from={quizStartFrame} name="Quiz Text">
-				<AbsoluteFill
-					className={`quiz_difficulty difficulty_${difficulty}`}
-					style={{
-						// @ts-expect-error: Type doesn't support CSS variables
-						'--animation-ratio': `${difficultyAnimationRatio * 100}%`,
-					}}
-				>
+				<AbsoluteFill className={`quiz_difficulty difficulty_${difficulty}`}>
 					{getDifficultyText(difficulty)}
 				</AbsoluteFill>
 				<AbsoluteFill className="quiz_id">No.{formattedQuizId}</AbsoluteFill>
