@@ -19,6 +19,8 @@ export const getVoiceVolume = (voiceId: string): number => {
 			return 4;
 		case 'whitecul':
 			return 4.5;
+		case 'sayo':
+			return 5;
 		default:
 			return 2.5;
 	}

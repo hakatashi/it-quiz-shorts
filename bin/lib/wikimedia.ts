@@ -117,6 +117,7 @@ const LICENSE_ALLOWLIST = [
 	'CC BY-SA 2.0',
 	'CC BY 4.0',
 	'CC BY 3.0',
+	'CC BY 2.5',
 	'CC BY 2.0',
 	'CC0',
 ];
