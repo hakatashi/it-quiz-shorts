@@ -18,7 +18,7 @@
 		"common-tags": "^1.8.2",
 		"dayjs": "^1.11.13",
 		"dotenv": "^17.2.1",
-		"fs-extra": "^11.3.0",
+		"fs-extra": "^11.3.1",
 		"google-auth-library": "^10.2.1",
 		"googleapis": "^155.0.0",
 		"html-entities": "^2.6.0",
