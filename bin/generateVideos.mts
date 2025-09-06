@@ -166,7 +166,10 @@ export interface VideoInfo {
 			introQuestionImageInformation,
 		);
 
-		assert(video.quizzes.length === 5, `Expected 5 quizzes, but found ${video.quizzes.length}`);
+		assert(
+			video.quizzes.length === 5,
+			`Expected 5 quizzes, but found ${video.quizzes.length}`,
+		);
 
 		const sortedQuizzes = sortBy(video.quizzes, (q) => q.difficulty);
 
