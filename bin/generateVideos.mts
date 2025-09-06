@@ -14,8 +14,9 @@ import {
 } from './lib/synthesis.js';
 import {z} from 'zod';
 import {getCommonsImageInformation, getCopyrightText} from './lib/wikimedia.js';
-import {sum} from 'lodash-es';
+import {sortBy, sum} from 'lodash-es';
 import {getQuizDuration} from '../src/utils.js';
+import assert from 'node:assert';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -61,6 +62,8 @@ const getSpeakerName = (voiceId: string): string => {
 			return 'WhiteCUL';
 		case 'sayo':
 			return '小夜/SAYO';
+		case 'hanamaru':
+			return '満別花丸';
 		default:
 			throw new Error(`Unknown voiceId: ${voiceId}`);
 	}
@@ -163,7 +166,11 @@ export interface VideoInfo {
 			introQuestionImageInformation,
 		);
 
-		for (const quiz of video.quizzes) {
+		assert(video.quizzes.length === 5, `Expected 5 quizzes, but found ${video.quizzes.length}`);
+
+		const sortedQuizzes = sortBy(video.quizzes, (q) => q.difficulty);
+
+		for (const quiz of sortedQuizzes) {
 			const questionSpeechFileName = `question-${quiz.quizId}-${video.questionSpeechId}.mp3`;
 			const answerSpeechFileName = `answer-${quiz.quizId}-${video.voiceId}.wav`;
 

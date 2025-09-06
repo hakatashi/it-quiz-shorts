@@ -24,6 +24,8 @@ const getVoiceName = (voiceId: string) => {
 			return 'WhiteCUL';
 		case 'sayo':
 			return '小夜/SAYO';
+		case 'hanamaru':
+			return '満別花丸';
 		default:
 			throw new Error(`Unknown voiceId: ${voiceId}`);
 	}
