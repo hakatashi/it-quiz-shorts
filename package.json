@@ -41,7 +41,7 @@
 		"@types/react": "19.1.13",
 		"@types/web": "0.0.269",
 		"@vitejs/plugin-react": "^4.7.0",
-		"eslint": "9.35.0",
+		"eslint": "9.36.0",
 		"jsdom": "^27.0.0",
 		"prettier": "3.6.2",
 		"tsx": "^4.20.6",
