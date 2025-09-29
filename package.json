@@ -38,7 +38,7 @@
 		"@testing-library/jest-dom": "^6.8.0",
 		"@testing-library/react": "^16.3.0",
 		"@testing-library/user-event": "^14.6.1",
-		"@types/react": "19.1.13",
+		"@types/react": "19.1.15",
 		"@types/web": "0.0.269",
 		"@vitejs/plugin-react": "^4.7.0",
 		"eslint": "9.35.0",
