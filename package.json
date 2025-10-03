@@ -29,7 +29,7 @@
 		"react": "19.2.0",
 		"react-dom": "19.2.0",
 		"remotion": "4.0.355",
-		"tailwindcss": "4.1.13",
+		"tailwindcss": "4.1.14",
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
