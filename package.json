@@ -30,7 +30,7 @@
 		"react-dom": "19.2.0",
 		"remotion": "4.0.358",
 		"tailwindcss": "4.1.14",
-		"zod": "3.22.3"
+		"zod": "4.1.12"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.5",
