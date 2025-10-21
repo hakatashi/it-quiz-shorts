@@ -42,7 +42,7 @@
 		"@types/web": "0.0.281",
 		"@vitejs/plugin-react": "^4.7.0",
 		"eslint": "9.38.0",
-		"jsdom": "^27.0.0",
+		"jsdom": "^27.0.1",
 		"prettier": "3.6.2",
 		"tsx": "^4.20.6",
 		"typescript": "5.9.3",
