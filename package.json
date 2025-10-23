@@ -6,7 +6,7 @@
 	"license": "UNLICENSED",
 	"private": true,
 	"dependencies": {
-		"@google-cloud/text-to-speech": "^6.3.1",
+		"@google-cloud/text-to-speech": "^6.4.0",
 		"@remotion/cli": "4.0.365",
 		"@remotion/fonts": "^4.0.365",
 		"@remotion/tailwind-v4": "4.0.365",
