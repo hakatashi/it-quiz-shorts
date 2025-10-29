@@ -33,7 +33,7 @@
 		"zod": "3.22.3"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.3.1",
+		"@biomejs/biome": "2.3.2",
 		"@remotion/eslint-config-flat": "4.0.370",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^16.3.0",
