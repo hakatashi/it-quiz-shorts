@@ -20,7 +20,7 @@
 		"dotenv": "^17.2.3",
 		"fs-extra": "^11.3.2",
 		"google-auth-library": "^10.5.0",
-		"googleapis": "^165.0.0",
+		"googleapis": "^166.0.0",
 		"html-entities": "^2.6.0",
 		"it-quiz-scripts": "https://gitpkg.vercel.app/hakatashi/it-quiz/.github?1.12.3",
 		"js-yaml": "^4.1.0",
