@@ -25,7 +25,7 @@
 		"it-quiz-scripts": "https://gitpkg.vercel.app/hakatashi/it-quiz/.github?1.12.3",
 		"js-yaml": "^4.1.1",
 		"kuromojin": "^3.0.1",
-		"lodash-es": "^4.17.21",
+		"lodash-es": "^4.18.1",
 		"react": "19.2.0",
 		"react-dom": "19.2.0",
 		"remotion": "4.0.377",
